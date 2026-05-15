@@ -1,0 +1,333 @@
+{
+  "layout": "theme.besitsol-home",
+  "sections": {
+    "hero": {
+      "type": "besitsol-hero",
+      "settings": {
+        "logo_text": "BESITSOL",
+        "badge_text": "Premium Retractable Awnings",
+        "cta_text": "Start Another Life",
+        "cta_header_text": "Shop Now",
+        "switcher_label": "Scenarios"
+      },
+      "blocks": {
+        "scene_1": {
+          "type": "scene",
+          "settings": {
+            "button_label": "01 - Patio Dinner",
+            "heading": "Bring Nature<br>Home.",
+            "description": "Enjoy warm family outdoor moments. Our smart retractable awnings seamlessly extend your living room into nature.",
+            "nav_label": "Easy Install"
+          }
+        },
+        "scene_2": {
+          "type": "scene",
+          "settings": {
+            "button_label": "02 - Reading Time",
+            "heading": "Light & Shadow,<br>Tranquility.",
+            "description": "Afternoon Reading. Block the heat, keep the breeze and soft light. Relax your mind and body.",
+            "nav_label": "Materials"
+          }
+        },
+        "scene_3": {
+          "type": "scene",
+          "settings": {
+            "button_label": "03 - Family Joy",
+            "heading": "Fearless of Sun,<br>Guarding Smiles.",
+            "description": "Family Time. Efficiently blocks 99% of UV rays, creating a safe and cool outdoor playground for children.",
+            "nav_label": "Community"
+          }
+        }
+      },
+      "block_order": ["scene_1", "scene_2", "scene_3"]
+    },
+    "diy": {
+      "type": "besitsol-diy",
+      "settings": {
+        "heading": "Build Your Dream Space Yourself",
+        "subtitle": "Say goodbye to complex construction and high labor costs. Our modular pre-assembled design makes installation as satisfying as solving a puzzle.",
+        "stat_number": "98%",
+        "stat_desc": "of users complete installation independently within 2 hours"
+      },
+      "blocks": {
+        "step_1": {
+          "type": "step",
+          "settings": {
+            "icon": "package",
+            "title": "Modular Unboxing",
+            "description": "All core components are pre-assembled and tested in the factory. Simply verify the minimalist parts kit upon arrival—no complex tools needed."
+          }
+        },
+        "step_2": {
+          "type": "step",
+          "settings": {
+            "icon": "wrench",
+            "title": "Simple Bracket Fixation",
+            "description": "Use the 1:1 paper template to drill holes and secure the heavy-duty wall brackets. The innovative snap-on design makes mounting as easy as hanging a picture."
+          }
+        },
+        "step_3": {
+          "type": "step",
+          "settings": {
+            "icon": "coffee",
+            "title": "Plug & Enjoy",
+            "description": "Connect to power and expand it instantly with the pre-paired remote. Pull up a chair, brew a coffee, and start enjoying your exclusive outdoor sanctuary."
+          }
+        }
+      },
+      "block_order": ["step_1", "step_2", "step_3"]
+    },
+    "materials": {
+      "type": "besitsol-materials",
+      "settings": {
+        "eyebrow": "Premium Sourcing",
+        "heading": "World-Class Materials"
+      },
+      "blocks": {
+        "mat_1": {
+          "type": "material",
+          "settings": {
+            "icon": "layers",
+            "title": "RECASENS\u00ae Fabric",
+            "description": "Sourced from Spain, this premium solution-dyed acrylic fabric offers unparalleled UV protection, colorfastness, and water resistance for over a decade."
+          }
+        },
+        "mat_2": {
+          "type": "material",
+          "settings": {
+            "icon": "box",
+            "title": "Aero-Grade Aluminum",
+            "description": "The main frame is constructed using lightweight yet incredibly robust aviation-grade aluminum alloy, guaranteeing zero rust and structural integrity."
+          }
+        },
+        "mat_3": {
+          "type": "material",
+          "settings": {
+            "icon": "link",
+            "title": "Stainless Steel Hinges",
+            "description": "Marine-grade 304 stainless steel connection hinges and drop-forged arm joints ensure silent, smooth, and lifetime-reliable mechanical operation."
+          }
+        }
+      },
+      "block_order": ["mat_1", "mat_2", "mat_3"]
+    },
+    "certifications": {
+      "type": "besitsol-certifications",
+      "settings": {
+        "heading": "Safe for Your Family.<br>Kind to the Planet.",
+        "subtitle": "Every BESITSOL awning undergoes rigorous testing. We design with your family's health and our environmental footprint in mind."
+      },
+      "blocks": {
+        "feat_1": {
+          "type": "feature",
+          "settings": { "text": "100% Eco-Friendly Manufacturing Process" }
+        },
+        "feat_2": {
+          "type": "feature",
+          "settings": { "text": "Child & Pet Friendly (Non-Toxic, No Pinch Points)" }
+        },
+        "feat_3": {
+          "type": "feature",
+          "settings": { "text": "Global Safety Certifications (CE, ISO 9001)" }
+        },
+        "badge_1": {
+          "type": "badge",
+          "settings": { "icon": "leaf", "title": "Eco-Certified", "subtitle": "Sustainable Sourcing" }
+        },
+        "badge_2": {
+          "type": "badge",
+          "settings": { "icon": "baby", "title": "Child Safe", "subtitle": "Zero Hazard Mechanics" }
+        },
+        "badge_3": {
+          "type": "badge",
+          "settings": { "icon": "dog", "title": "Pet Friendly", "subtitle": "Non-Toxic Treatments" }
+        },
+        "badge_4": {
+          "type": "badge",
+          "settings": { "icon": "globe", "title": "CE / ISO", "subtitle": "Global Standards" }
+        }
+      },
+      "block_order": ["feat_1", "feat_2", "feat_3", "badge_1", "badge_2", "badge_3", "badge_4"]
+    },
+    "specs": {
+      "type": "besitsol-specs",
+      "settings": {
+        "heading": "Crafted to Perfection \u00b7 Built to Last",
+        "subtitle": "Breaking the fragile stereotype of traditional shading. BESITSOL combines architectural aesthetics with hardcore durability."
+      },
+      "blocks": {
+        "spec_1": {
+          "type": "feature",
+          "settings": {
+            "position": "left",
+            "icon": "shield",
+            "title": "Reinforced Structural Frame",
+            "description": "Engineered with thick-walled profiles, effortlessly withstanding Level 6 strong winds. Designed for maximum load-bearing and stability."
+          }
+        },
+        "spec_2": {
+          "type": "feature",
+          "settings": {
+            "position": "left",
+            "icon": "sun",
+            "title": "Dynamic Tension System",
+            "description": "Works seamlessly with the fabric to ensure a perfectly taut surface at all times, preventing water pooling and wind flap."
+          }
+        },
+        "spec_3": {
+          "type": "feature",
+          "settings": {
+            "position": "right",
+            "icon": "cpu",
+            "title": "Silent Tubular Motor",
+            "description": "Built-in invisible power system operates under 40 decibels. Supports remote control and smart home App integration."
+          }
+        },
+        "spec_4": {
+          "type": "feature",
+          "settings": {
+            "position": "right",
+            "icon": "git-merge",
+            "title": "Dual-Spring Articulated Arms",
+            "description": "Patented bionic joint design with high-tension double springs, ensuring perfect fabric tension at any extension angle."
+          }
+        }
+      },
+      "block_order": ["spec_1", "spec_2", "spec_3", "spec_4"]
+    },
+    "advantages": {
+      "type": "besitsol-advantages",
+      "settings": {
+        "heading": "Why Choose BESITSOL"
+      },
+      "blocks": {
+        "adv_1": {
+          "type": "advantage",
+          "settings": {
+            "icon": "sun",
+            "title": "All-Weather Protection",
+            "description": "Shade from the summer heat and shelter from the rain. Transforming unpredictable weather into a guaranteed comfortable experience."
+          }
+        },
+        "adv_2": {
+          "type": "advantage",
+          "settings": {
+            "icon": "award",
+            "title": "10-Year Warranty",
+            "description": "Absolute confidence in our quality. A 10-year warranty on the frame and fabric, and 5 years on the motor system."
+          }
+        },
+        "adv_3": {
+          "type": "advantage",
+          "settings": {
+            "icon": "leaf",
+            "title": "Energy Efficient",
+            "description": "Effectively blocks direct sunlight, lowering indoor temperatures by 5-8 degrees in summer and reducing AC costs."
+          }
+        },
+        "adv_4": {
+          "type": "advantage",
+          "settings": {
+            "icon": "smartphone",
+            "title": "Smart Sensors",
+            "description": "Optional smart weather sensors automatically retract the awning before strong winds or heavy rain arrive."
+          }
+        }
+      },
+      "block_order": ["adv_1", "adv_2", "adv_3", "adv_4"]
+    },
+    "ugc": {
+      "type": "besitsol-ugc",
+      "settings": {
+        "heading": "The Aspiring Lifestyle",
+        "subtitle": "Real backyard stories from 10,000+ families worldwide."
+      },
+      "blocks": {
+        "review_1": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "quote": "Since installing the retractable awning, our backyard has become the most popular dining room in the house. Weekend brunch experiences have skyrocketed!",
+            "name": "Michael T.",
+            "location": "California, USA",
+            "avatar_color": "#8B8680"
+          }
+        },
+        "review_2": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "quote": "Following the video tutorial, my husband and I installed it in just one afternoon. The sturdiness exceeded expectations, and the color matches our exterior perfectly.",
+            "name": "Sarah & John",
+            "location": "Sydney, AUS",
+            "avatar_color": "#C65A3A"
+          }
+        },
+        "community": {
+          "type": "community_cta",
+          "settings": {
+            "title": "Join the Community",
+            "description": "Share your courtyard life with the hashtag #MyBesitsol to unlock an exclusive discount for your next purchase."
+          }
+        }
+      },
+      "block_order": ["review_1", "review_2", "community"]
+    },
+    "faq_footer": {
+      "type": "besitsol-faq-footer",
+      "settings": {
+        "heading": "Frequently Asked Questions",
+        "subtitle": "Answers regarding purchasing, installation, and after-sales support. For further assistance, please contact our support team.",
+        "support_text": "Contact Online Support",
+        "footer_logo_text": "BESITSOL",
+        "footer_description": "We are dedicated to expanding high-quality outdoor living spaces for modern families through innovative structural engineering and minimalist design.",
+        "links_title": "Quick Links",
+        "newsletter_title": "Subscribe for Inspiration",
+        "newsletter_desc": "Get the latest outdoor living inspiration and exclusive offers.",
+        "newsletter_placeholder": "Your email address",
+        "copyright": "\u00a9 2026 BESITSOL. All rights reserved."
+      },
+      "blocks": {
+        "faq_1": {
+          "type": "faq",
+          "settings": {
+            "question": "Are special tools required for installation?",
+            "answer": "No. We provide standard bolts and a simple wrench. You only need to prepare a household electric drill (for wall drilling) and a tape measure. A detailed tool list is included in the manual."
+          }
+        },
+        "faq_2": {
+          "type": "faq",
+          "settings": {
+            "question": "How much wind can it withstand?",
+            "answer": "Our awning frames are CE certified. When fully extended, they can withstand Level 6 strong winds (approx. 40km/h). We highly recommend adding a Wind Sensor for automatic retraction during extreme weather."
+          }
+        },
+        "faq_3": {
+          "type": "faq",
+          "settings": {
+            "question": "Is the fabric easily dirtied? How to clean it?",
+            "answer": "The imported solution-dyed acrylic fabric features a Teflon self-cleaning coating; ordinary dust is naturally washed away by rain. For deep cleaning, simply brush gently with a soft bristle brush and mild soapy water."
+          }
+        },
+        "link_1": {
+          "type": "footer_link",
+          "settings": { "label": "Products" }
+        },
+        "link_2": {
+          "type": "footer_link",
+          "settings": { "label": "Installation Guide" }
+        },
+        "link_3": {
+          "type": "footer_link",
+          "settings": { "label": "Warranty Policy" }
+        },
+        "link_4": {
+          "type": "footer_link",
+          "settings": { "label": "Find a Dealer" }
+        }
+      },
+      "block_order": ["faq_1", "faq_2", "faq_3", "link_1", "link_2", "link_3", "link_4"]
+    }
+  },
+  "order": ["hero", "diy", "materials", "certifications", "specs", "advantages", "ugc", "faq_footer"]
+}

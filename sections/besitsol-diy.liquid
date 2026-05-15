@@ -1,0 +1,140 @@
+{% comment %}
+  BESITSOL DIY Section — 安装步骤展示
+  支持后台自定义标题、统计数据、每个步骤的图标/标题/描述
+{% endcomment %}
+
+<section id="s-diy" class="besitsol-section besitsol-diy">
+  <div class="besitsol-container">
+    <!-- Section Header -->
+    <div class="besitsol-diy__header">
+      <div class="besitsol-diy__header-text">
+        <h2 class="besitsol-heading">{{ section.settings.heading }}</h2>
+        <p class="besitsol-diy__subtitle">{{ section.settings.subtitle }}</p>
+      </div>
+      <div class="besitsol-diy__stat">
+        <span class="besitsol-diy__stat-number">{{ section.settings.stat_number }}</span>
+        <span class="besitsol-diy__stat-desc">{{ section.settings.stat_desc }}</span>
+      </div>
+    </div>
+
+    <!-- Steps Grid -->
+    <div class="besitsol-diy__grid">
+      {%- for block in section.blocks -%}
+        <div class="besitsol-diy__card" {{ block.shopify_attributes }}>
+          <div class="besitsol-diy__card-number">{{ forloop.index }}</div>
+          <div class="besitsol-diy__card-icon">
+            {% case block.settings.icon %}
+              {% when 'package' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+              {% when 'wrench' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              {% when 'coffee' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {% endcase %}
+          </div>
+          <h3 class="besitsol-diy__card-title">{{ block.settings.title }}</h3>
+          <p class="besitsol-diy__card-desc">{{ block.settings.description }}</p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "BESITSOL DIY Steps",
+  "tag": "div",
+  "class": "besitsol-diy-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Build Your Dream Space Yourself"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Say goodbye to complex construction and high labor costs. Our modular pre-assembled design makes installation as satisfying as solving a puzzle."
+    },
+    {
+      "type": "text",
+      "id": "stat_number",
+      "label": "Statistic Number",
+      "default": "98%"
+    },
+    {
+      "type": "text",
+      "id": "stat_desc",
+      "label": "Statistic Description",
+      "default": "of users complete installation independently within 2 hours"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "package", "label": "Package" },
+            { "value": "wrench", "label": "Wrench" },
+            { "value": "coffee", "label": "Coffee" }
+          ],
+          "default": "package"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Step Title",
+          "default": "Step Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Step Description",
+          "default": "Step description goes here."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BESITSOL DIY Steps",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "icon": "package",
+            "title": "Modular Unboxing",
+            "description": "All core components are pre-assembled and tested in the factory. Simply verify the minimalist parts kit upon arrival—no complex tools needed."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon": "wrench",
+            "title": "Simple Bracket Fixation",
+            "description": "Use the 1:1 paper template to drill holes and secure the heavy-duty wall brackets. The innovative snap-on design makes mounting the main unit as easy as hanging a picture."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon": "coffee",
+            "title": "Plug & Enjoy",
+            "description": "Connect to power and expand it instantly with the pre-paired remote. Pull up a chair, brew a coffee, and start enjoying your exclusive outdoor sanctuary."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

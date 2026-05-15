@@ -1,0 +1,266 @@
+{% comment %}
+  BESITSOL FAQ + Footer Section
+{% endcomment %}
+
+<section id="s-faq-footer" class="besitsol-section besitsol-faq-footer">
+  <div class="besitsol-faq-footer__content">
+    <div class="besitsol-container">
+      <div class="besitsol-faq__layout">
+        <!-- Left Intro -->
+        <div class="besitsol-faq__intro">
+          <h2 class="besitsol-heading">{{ section.settings.heading }}</h2>
+          <p class="besitsol-faq__intro-text">{{ section.settings.subtitle }}</p>
+          {%- if section.settings.support_text != blank -%}
+            <button class="besitsol-faq__support-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+              {{ section.settings.support_text }}
+            </button>
+          {%- endif -%}
+        </div>
+
+        <!-- Right FAQ Items -->
+        <div class="besitsol-faq__items">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'faq' -%}
+              <div class="besitsol-faq__item" {{ block.shopify_attributes }}>
+                <button class="besitsol-faq__question" onclick="besitsolToggleFaq(this)">
+                  <span>{{ block.settings.question }}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="besitsol-faq__chevron"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="besitsol-faq__answer">
+                  <p>{{ block.settings.answer }}</p>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="besitsol-footer">
+    <div class="besitsol-container">
+      <div class="besitsol-footer__grid">
+        <!-- Brand Column -->
+        <div class="besitsol-footer__brand">
+          <div class="besitsol-logo besitsol-footer__logo">{{ section.settings.footer_logo_text }}<span class="besitsol-logo__dot">.</span></div>
+          <p class="besitsol-footer__brand-desc">{{ section.settings.footer_description }}</p>
+          <div class="besitsol-footer__social">
+            {%- if section.settings.social_facebook != blank -%}
+              <a href="{{ section.settings.social_facebook }}" target="_blank" rel="noopener" aria-label="Facebook">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              </a>
+            {%- endif -%}
+            {%- if section.settings.social_twitter != blank -%}
+              <a href="{{ section.settings.social_twitter }}" target="_blank" rel="noopener" aria-label="Twitter">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+              </a>
+            {%- endif -%}
+            {%- if section.settings.social_instagram != blank -%}
+              <a href="{{ section.settings.social_instagram }}" target="_blank" rel="noopener" aria-label="Instagram">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              </a>
+            {%- endif -%}
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="besitsol-footer__links">
+          <h5 class="besitsol-footer__links-title">{{ section.settings.links_title }}</h5>
+          <ul>
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'footer_link' -%}
+                <li><a href="{{ block.settings.url }}">{{ block.settings.label }}</a></li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="besitsol-footer__newsletter">
+          <h5 class="besitsol-footer__links-title">{{ section.settings.newsletter_title }}</h5>
+          <p class="besitsol-footer__newsletter-desc">{{ section.settings.newsletter_desc }}</p>
+          {%- form 'customer', class: 'besitsol-footer__form' -%}
+            <input type="hidden" name="contact[tags]" value="newsletter">
+            <div class="besitsol-footer__input-group">
+              <input type="email" name="contact[email]" placeholder="{{ section.settings.newsletter_placeholder }}" required class="besitsol-footer__input">
+              <button type="submit" class="besitsol-footer__submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          {%- endform -%}
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="besitsol-footer__bottom">
+        <p>{{ section.settings.copyright }}</p>
+        <div class="besitsol-footer__bottom-links">
+          {%- if section.settings.privacy_url != blank -%}
+            <a href="{{ section.settings.privacy_url }}">Privacy Policy</a>
+          {%- endif -%}
+          {%- if section.settings.terms_url != blank -%}
+            <a href="{{ section.settings.terms_url }}">Terms of Service</a>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </footer>
+</section>
+
+{% schema %}
+{
+  "name": "BESITSOL FAQ & Footer",
+  "tag": "div",
+  "class": "besitsol-faq-footer-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "FAQ Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "FAQ Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "FAQ Subtitle",
+      "default": "Answers regarding purchasing, installation, and after-sales support."
+    },
+    {
+      "type": "text",
+      "id": "support_text",
+      "label": "Support Button Text",
+      "default": "Contact Online Support"
+    },
+    {
+      "type": "header",
+      "content": "Footer Settings"
+    },
+    {
+      "type": "text",
+      "id": "footer_logo_text",
+      "label": "Footer Logo Text",
+      "default": "BESITSOL"
+    },
+    {
+      "type": "textarea",
+      "id": "footer_description",
+      "label": "Footer Description",
+      "default": "We are dedicated to expanding high-quality outdoor living spaces for modern families through innovative structural engineering and minimalist design."
+    },
+    {
+      "type": "url",
+      "id": "social_facebook",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "url",
+      "id": "social_twitter",
+      "label": "Twitter URL"
+    },
+    {
+      "type": "url",
+      "id": "social_instagram",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "text",
+      "id": "links_title",
+      "label": "Links Column Title",
+      "default": "Quick Links"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_title",
+      "label": "Newsletter Title",
+      "default": "Subscribe for Inspiration"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_desc",
+      "label": "Newsletter Description",
+      "default": "Get the latest outdoor living inspiration and exclusive offers."
+    },
+    {
+      "type": "text",
+      "id": "newsletter_placeholder",
+      "label": "Email Placeholder",
+      "default": "Your email address"
+    },
+    {
+      "type": "text",
+      "id": "copyright",
+      "label": "Copyright Text",
+      "default": "\u00a9 2026 BESITSOL. All rights reserved."
+    },
+    {
+      "type": "url",
+      "id": "privacy_url",
+      "label": "Privacy Policy URL"
+    },
+    {
+      "type": "url",
+      "id": "terms_url",
+      "label": "Terms URL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq",
+      "name": "FAQ Item",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Question goes here?"
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer",
+          "default": "Answer goes here."
+        }
+      ]
+    },
+    {
+      "type": "footer_link",
+      "name": "Footer Link",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Link Label",
+          "default": "Link"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BESITSOL FAQ & Footer",
+      "blocks": [
+        { "type": "faq", "settings": { "question": "Are special tools required for installation?", "answer": "No. We provide standard bolts and a simple wrench. You only need to prepare a household electric drill (for wall drilling) and a tape measure." } },
+        { "type": "faq", "settings": { "question": "How much wind can it withstand?", "answer": "Our awning frames are CE certified. When fully extended, they can withstand Level 6 strong winds (approx. 40km/h). We highly recommend adding a Wind Sensor for automatic retraction." } },
+        { "type": "faq", "settings": { "question": "Is the fabric easily dirtied? How to clean it?", "answer": "The imported solution-dyed acrylic fabric features a Teflon self-cleaning coating; ordinary dust is naturally washed away by rain. For deep cleaning, simply brush gently with a soft bristle brush and mild soapy water." } },
+        { "type": "footer_link", "settings": { "label": "Products" } },
+        { "type": "footer_link", "settings": { "label": "Installation Guide" } },
+        { "type": "footer_link", "settings": { "label": "Warranty Policy" } },
+        { "type": "footer_link", "settings": { "label": "Find a Dealer" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

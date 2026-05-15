@@ -1,0 +1,196 @@
+{% comment %}
+  BESITSOL Hero Section — Banner 三图切换
+  支持后台上传3张场景图 + 自定义标题/描述/按钮
+{% endcomment %}
+
+{{ 'besitsol-fullpage.css' | asset_url | stylesheet_tag }}
+
+<section id="s-hero" class="besitsol-section besitsol-hero">
+  {%- for block in section.blocks -%}
+    <div
+      class="besitsol-hero__layer{% if forloop.first %} active{% endif %}"
+      style="background-image: url('{{ block.settings.image | image_url: width: 1920 }}');"
+      data-scene="{{ block.id }}"
+      {{ block.shopify_attributes }}
+    ></div>
+  {%- endfor -%}
+
+  <div class="besitsol-hero__overlay"></div>
+
+  <div class="besitsol-hero__content">
+    <!-- Header -->
+    <header class="besitsol-hero__header">
+      <div class="besitsol-logo">{{ section.settings.logo_text }}<span class="besitsol-logo__dot">.</span></div>
+      <nav class="besitsol-hero__nav">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.nav_label != blank -%}
+            <a href="{{ block.settings.nav_link }}" class="besitsol-nav-link">{{ block.settings.nav_label }}</a>
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
+      {%- if section.settings.cta_header_text != blank -%}
+        <a href="{{ section.settings.cta_header_link }}" class="besitsol-hero__shop-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          {{ section.settings.cta_header_text }}
+        </a>
+      {%- endif -%}
+    </header>
+
+    <!-- Main Hero Content -->
+    <div class="besitsol-hero__main">
+      <div class="besitsol-hero__text">
+        <span class="besitsol-hero__badge">{{ section.settings.badge_text }}</span>
+        <h1 class="besitsol-hero__title" id="besitsol-banner-title">
+          {{ section.blocks.first.settings.heading }}
+        </h1>
+        <p class="besitsol-hero__desc" id="besitsol-banner-desc">
+          {{ section.blocks.first.settings.description }}
+        </p>
+        {%- if section.settings.cta_text != blank -%}
+          <a href="{{ section.settings.cta_link }}" class="besitsol-hero__cta">
+            {{ section.settings.cta_text }}
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        {%- endif -%}
+      </div>
+
+      <!-- Scene Switcher -->
+      <div class="besitsol-hero__switcher">
+        <p class="besitsol-hero__switcher-label">{{ section.settings.switcher_label }}</p>
+        {%- for block in section.blocks -%}
+          <button
+            class="besitsol-theme-btn{% if forloop.first %} active-btn{% endif %}"
+            data-target="{{ block.id }}"
+            data-title="{{ block.settings.heading | escape }}"
+            data-desc="{{ block.settings.description | escape }}"
+          >
+            {{ block.settings.button_label }}
+          </button>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "BESITSOL Hero",
+  "tag": "section",
+  "class": "besitsol-hero-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "logo_text",
+      "label": "Logo Text",
+      "default": "BESITSOL"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge Text",
+      "default": "Premium Retractable Awnings"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Hero CTA Text",
+      "default": "Start Another Life"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Hero CTA Link"
+    },
+    {
+      "type": "text",
+      "id": "cta_header_text",
+      "label": "Header CTA Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "cta_header_link",
+      "label": "Header CTA Link"
+    },
+    {
+      "type": "text",
+      "id": "switcher_label",
+      "label": "Switcher Label",
+      "default": "Scenarios"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "scene",
+      "name": "Scene",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Background Image"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button Label",
+          "default": "01 - Scene Name"
+        },
+        {
+          "type": "html",
+          "id": "heading",
+          "label": "Heading (supports <br>)",
+          "default": "Bring Nature<br>Home."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Enjoy warm family outdoor moments."
+        },
+        {
+          "type": "text",
+          "id": "nav_label",
+          "label": "Nav Link Label (optional)"
+        },
+        {
+          "type": "url",
+          "id": "nav_link",
+          "label": "Nav Link URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BESITSOL Hero",
+      "blocks": [
+        {
+          "type": "scene",
+          "settings": {
+            "button_label": "01 - Patio Dinner",
+            "heading": "Bring Nature<br>Home.",
+            "description": "Enjoy warm family outdoor moments. Our smart retractable awnings seamlessly extend your living room into nature."
+          }
+        },
+        {
+          "type": "scene",
+          "settings": {
+            "button_label": "02 - Reading Time",
+            "heading": "Light & Shadow,<br>Tranquility.",
+            "description": "Afternoon Reading. Block the heat, keep the breeze and soft light. Relax your mind and body."
+          }
+        },
+        {
+          "type": "scene",
+          "settings": {
+            "button_label": "03 - Family Joy",
+            "heading": "Fearless of Sun,<br>Guarding Smiles.",
+            "description": "Family Time. Efficiently blocks 99% of UV rays, creating a safe and cool outdoor playground for children."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

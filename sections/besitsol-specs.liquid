@@ -1,0 +1,170 @@
+{% comment %}
+  BESITSOL Specs Section — 技术规格/爆炸图
+{% endcomment %}
+
+<section id="s-education" class="besitsol-section besitsol-specs">
+  <div class="besitsol-container">
+    <div class="besitsol-specs__header">
+      <h2 class="besitsol-heading">{{ section.settings.heading }}</h2>
+      <p class="besitsol-specs__subtitle">{{ section.settings.subtitle }}</p>
+    </div>
+
+    <div class="besitsol-specs__layout">
+      <!-- Left Features -->
+      <div class="besitsol-specs__features besitsol-specs__features--left">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.position == 'left' -%}
+            <div class="besitsol-specs__feature" {{ block.shopify_attributes }}>
+              <div class="besitsol-specs__feature-icon">
+                {% case block.settings.icon %}
+                  {% when 'shield' %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                  {% when 'sun' %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                  {% else %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                {% endcase %}
+              </div>
+              <div>
+                <h3 class="besitsol-specs__feature-title">{{ block.settings.title }}</h3>
+                <p class="besitsol-specs__feature-desc">{{ block.settings.description }}</p>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <!-- Center Diagram -->
+      <div class="besitsol-specs__diagram">
+        <div class="besitsol-specs__diagram-glow"></div>
+        {%- if section.settings.diagram_image != blank -%}
+          <img
+            src="{{ section.settings.diagram_image | image_url: width: 800 }}"
+            alt="{{ section.settings.heading }}"
+            class="besitsol-specs__diagram-img"
+            loading="lazy"
+          >
+        {%- else -%}
+          <!-- Default SVG Diagram -->
+          <svg viewBox="0 0 400 300" class="besitsol-specs__diagram-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="50" width="15" height="150" rx="4" fill="#8B8680" />
+            <circle cx="27" cy="70" r="3" fill="#3D2817" />
+            <circle cx="27" cy="180" r="3" fill="#3D2817" />
+            <path d="M35 80 L 180 110 L 360 80" stroke="#8B8680" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M35 170 L 180 140 L 360 170" stroke="#8B8680" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="180" cy="110" r="8" fill="#1E3D2F" />
+            <circle cx="180" cy="140" r="8" fill="#1E3D2F" />
+            <rect x="350" y="70" width="15" height="110" rx="7" fill="#6B8E23" />
+            <path d="M20 50 Q 180 30 355 70 L 355 75 Q 180 35 20 55 Z" fill="#C65A3A" opacity="0.9"/>
+            <path d="M350 70 L 350 85 Q 180 50 20 65 L 20 50 Q 180 30 350 70 Z" fill="#E57D5C" opacity="0.6"/>
+          </svg>
+        {%- endif -%}
+      </div>
+
+      <!-- Right Features -->
+      <div class="besitsol-specs__features besitsol-specs__features--right">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.position == 'right' -%}
+            <div class="besitsol-specs__feature" {{ block.shopify_attributes }}>
+              <div class="besitsol-specs__feature-icon">
+                {% case block.settings.icon %}
+                  {% when 'cpu' %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                  {% when 'git-merge' %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>
+                  {% else %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                {% endcase %}
+              </div>
+              <div>
+                <h3 class="besitsol-specs__feature-title">{{ block.settings.title }}</h3>
+                <p class="besitsol-specs__feature-desc">{{ block.settings.description }}</p>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "BESITSOL Tech Specs",
+  "tag": "div",
+  "class": "besitsol-specs-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Crafted to Perfection \u00b7 Built to Last"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Breaking the fragile stereotype of traditional shading. BESITSOL combines architectural aesthetics with hardcore durability."
+    },
+    {
+      "type": "image_picker",
+      "id": "diagram_image",
+      "label": "Center Diagram Image (optional, replaces default SVG)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "select",
+          "id": "position",
+          "label": "Position",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "shield", "label": "Shield" },
+            { "value": "sun", "label": "Sun" },
+            { "value": "cpu", "label": "CPU / Motor" },
+            { "value": "git-merge", "label": "Merge / Arms" }
+          ],
+          "default": "shield"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Feature Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Feature description goes here."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BESITSOL Tech Specs",
+      "blocks": [
+        { "type": "feature", "settings": { "position": "left", "icon": "shield", "title": "Reinforced Structural Frame", "description": "Engineered with thick-walled profiles, effortlessly withstanding Level 6 strong winds." } },
+        { "type": "feature", "settings": { "position": "left", "icon": "sun", "title": "Dynamic Tension System", "description": "Works seamlessly with the fabric to ensure a perfectly taut surface at all times." } },
+        { "type": "feature", "settings": { "position": "right", "icon": "cpu", "title": "Silent Tubular Motor", "description": "Built-in invisible power system operates under 40 decibels. Supports remote control and smart home App." } },
+        { "type": "feature", "settings": { "position": "right", "icon": "git-merge", "title": "Dual-Spring Articulated Arms", "description": "Patented bionic joint design with high-tension double springs, ensuring perfect fabric tension." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

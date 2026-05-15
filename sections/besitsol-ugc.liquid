@@ -1,0 +1,140 @@
+{% comment %}
+  BESITSOL UGC Section — 用户评价/社区
+{% endcomment %}
+
+<section id="s-ugc" class="besitsol-section besitsol-ugc">
+  <div class="besitsol-container">
+    <div class="besitsol-ugc__header">
+      <div>
+        <h2 class="besitsol-heading">{{ section.settings.heading }}</h2>
+        <p class="besitsol-ugc__subtitle">{{ section.settings.subtitle }}</p>
+      </div>
+    </div>
+
+    <div class="besitsol-ugc__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'review' -%}
+          <div class="besitsol-ugc__card" {{ block.shopify_attributes }}>
+            <div class="besitsol-ugc__stars">
+              {%- assign stars = block.settings.stars | times: 1 -%}
+              {%- for i in (1..5) -%}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="{% if i <= stars %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="besitsol-ugc__star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {%- endfor -%}
+            </div>
+            <p class="besitsol-ugc__quote">"{{ block.settings.quote }}"</p>
+            <div class="besitsol-ugc__author">
+              <div class="besitsol-ugc__avatar" style="background-color: {{ block.settings.avatar_color }};">
+                {{ block.settings.name | slice: 0 }}
+              </div>
+              <div>
+                <p class="besitsol-ugc__name">{{ block.settings.name }}</p>
+                <p class="besitsol-ugc__location">{{ block.settings.location }}</p>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- if block.type == 'community_cta' -%}
+          <div class="besitsol-ugc__cta-card" {{ block.shopify_attributes }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            <h4 class="besitsol-ugc__cta-title">{{ block.settings.title }}</h4>
+            <p class="besitsol-ugc__cta-desc">{{ block.settings.description }}</p>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "BESITSOL Reviews",
+  "tag": "div",
+  "class": "besitsol-ugc-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The Aspiring Lifestyle"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Real backyard stories from 10,000+ families worldwide."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review Card",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "range",
+          "id": "stars",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Star Rating",
+          "default": 5
+        },
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Review Quote",
+          "default": "Amazing product! Transformed our backyard."
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Reviewer Name",
+          "default": "Michael T."
+        },
+        {
+          "type": "text",
+          "id": "location",
+          "label": "Location",
+          "default": "California, USA"
+        },
+        {
+          "type": "color",
+          "id": "avatar_color",
+          "label": "Avatar Color",
+          "default": "#8B8680"
+        }
+      ]
+    },
+    {
+      "type": "community_cta",
+      "name": "Community CTA",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Join the Community"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Share your courtyard life with the hashtag #MyBesitsol to unlock an exclusive discount for your next purchase."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BESITSOL Reviews",
+      "blocks": [
+        { "type": "review", "settings": { "stars": 5, "quote": "Since installing the retractable awning, our backyard has become the most popular dining room in the house. Weekend brunch experiences have skyrocketed!", "name": "Michael T.", "location": "California, USA", "avatar_color": "#8B8680" } },
+        { "type": "review", "settings": { "stars": 5, "quote": "Following the video tutorial, my husband and I installed it in just one afternoon. The sturdiness exceeded expectations, and the color matches our exterior perfectly.", "name": "Sarah & John", "location": "Sydney, AUS", "avatar_color": "#C65A3A" } },
+        { "type": "community_cta", "settings": { "title": "Join the Community", "description": "Share your courtyard life with the hashtag #MyBesitsol to unlock an exclusive discount for your next purchase." } }
+      ]
+    }
+  ]
+}
+{% endschema %}
