@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title }} — {{ shop.name }}</title>
+  {{ content_for_header }}
+  {{ 'besitsol-fullpage.css' | asset_url | stylesheet_tag }}
+</head>
+<body class="besitsol-fullpage-body">
+
+  <div id="besitsol-scroll-container">
+    {{ content_for_layout }}
+  </div>
+
+  <script src="{{ 'besitsol-fullpage.js' | asset_url }}" defer></script>
+</body>
+</html>

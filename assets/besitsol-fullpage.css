@@ -1,0 +1,1158 @@
+/* ============================================
+   BESITSOL Fullpage — VI Color System & Layout
+   ============================================ */
+
+/* --- CSS Custom Properties (Brand VI) --- */
+:root {
+  --besitsol-green: #6B8E23;
+  --besitsol-brown: #3D2817;
+  --besitsol-gray: #8B8680;
+  --besitsol-cream: #F2E9D8;
+  --besitsol-forest: #1E3D2F;
+  --besitsol-terra: #C65A3A;
+  --besitsol-white: #ffffff;
+  --besitsol-font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  --besitsol-font-heading: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  --besitsol-transition: cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+/* --- Font Import --- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+/* --- Fullpage Scroll Container --- */
+.besitsol-fullpage-body {
+  margin: 0;
+  overflow: hidden;
+  background-color: var(--besitsol-cream);
+  color: var(--besitsol-brown);
+  font-family: var(--besitsol-font-body);
+}
+
+#besitsol-scroll-container {
+  height: 100vh;
+  width: 100vw;
+  transition: transform 1.2s var(--besitsol-transition);
+}
+
+.besitsol-section {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Shared Utilities --- */
+.besitsol-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+  width: 100%;
+}
+
+.besitsol-heading {
+  font-family: var(--besitsol-font-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.besitsol-divider {
+  width: 5rem;
+  height: 4px;
+  background-color: var(--besitsol-green);
+  margin: 1rem auto 0;
+}
+
+.besitsol-logo {
+  font-family: var(--besitsol-font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.besitsol-logo__dot {
+  color: var(--besitsol-green);
+}
+
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+.besitsol-hero {
+  background-color: var(--besitsol-forest);
+}
+
+.besitsol-hero__layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  z-index: 1;
+}
+
+.besitsol-hero__layer.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+.besitsol-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(30,61,47,0.85) 0%, rgba(30,61,47,0.3) 50%, rgba(0,0,0,0) 100%);
+  z-index: 3;
+}
+
+.besitsol-hero__content {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5rem 5rem;
+}
+
+/* Hero Header */
+.besitsol-hero__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--besitsol-cream);
+}
+
+.besitsol-hero__nav {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.besitsol-nav-link {
+  position: relative;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--besitsol-cream);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.besitsol-nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--besitsol-green);
+  transition: width 0.3s;
+}
+
+.besitsol-nav-link:hover::after {
+  width: 100%;
+}
+
+.besitsol-hero__shop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--besitsol-cream);
+  color: var(--besitsol-forest);
+  padding: 0.625rem 1.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.3s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.besitsol-hero__shop-btn:hover {
+  background: var(--besitsol-white);
+}
+
+/* Hero Main */
+.besitsol-hero__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 2.5rem;
+}
+
+.besitsol-hero__text {
+  max-width: 38rem;
+  color: var(--besitsol-cream);
+}
+
+.besitsol-hero__badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(242,233,216,0.3);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  backdrop-filter: blur(4px);
+}
+
+.besitsol-hero__title {
+  font-family: var(--besitsol-font-heading);
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  transition: opacity 0.7s;
+}
+
+.besitsol-hero__desc {
+  font-size: 1.2rem;
+  font-weight: 300;
+  opacity: 0.9;
+  margin-bottom: 2.5rem;
+  max-width: 28rem;
+  line-height: 1.6;
+  transition: opacity 0.7s;
+}
+
+.besitsol-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--besitsol-green);
+  color: var(--besitsol-white);
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.besitsol-hero__cta:hover {
+  background: var(--besitsol-forest);
+}
+
+/* Hero Switcher */
+.besitsol-hero__switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: flex-end;
+  color: var(--besitsol-cream);
+}
+
+.besitsol-hero__switcher-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+
+.besitsol-theme-btn {
+  position: relative;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--besitsol-cream);
+  font-family: var(--besitsol-font-heading);
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
+  text-align: right;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.4s ease;
+}
+
+.besitsol-theme-btn.active-btn {
+  border-left-color: var(--besitsol-green);
+  padding-left: 1.5rem;
+  opacity: 1;
+}
+
+.besitsol-theme-btn:not(.active-btn):hover {
+  opacity: 1;
+  padding-left: 0.5rem;
+}
+
+
+/* ============================================
+   DIY SECTION
+   ============================================ */
+.besitsol-diy {
+  background-color: var(--besitsol-forest);
+  color: var(--besitsol-cream);
+  justify-content: center;
+}
+
+.besitsol-diy__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 4rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(242,233,216,0.2);
+}
+
+.besitsol-diy__header-text {
+  max-width: 36rem;
+}
+
+.besitsol-diy__subtitle {
+  color: rgba(242,233,216,0.7);
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  line-height: 1.6;
+}
+
+.besitsol-diy__stat {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.besitsol-diy__stat-number {
+  font-family: var(--besitsol-font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--besitsol-green);
+}
+
+.besitsol-diy__stat-desc {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  line-height: 1.4;
+}
+
+.besitsol-diy__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+}
+
+.besitsol-diy__card {
+  background: rgba(242, 233, 216, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 2rem;
+  border-radius: 1rem;
+  position: relative;
+  overflow: hidden;
+  color: var(--besitsol-brown);
+}
+
+.besitsol-diy__card-number {
+  position: absolute;
+  right: -0.5rem;
+  top: -1.5rem;
+  font-family: var(--besitsol-font-heading);
+  font-size: 7.5rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.05);
+  transition: color 0.3s;
+}
+
+.besitsol-diy__card:hover .besitsol-diy__card-number {
+  color: rgba(107,142,35,0.1);
+}
+
+.besitsol-diy__card-icon {
+  color: var(--besitsol-green);
+  margin-bottom: 1.5rem;
+}
+
+.besitsol-diy__card-title {
+  font-family: var(--besitsol-font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.besitsol-diy__card-desc {
+  color: rgba(61,40,23,0.7);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ============================================
+   MATERIALS SECTION
+   ============================================ */
+.besitsol-materials {
+  background-color: var(--besitsol-brown);
+  color: var(--besitsol-cream);
+  justify-content: center;
+}
+
+.besitsol-materials__header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.besitsol-materials__eyebrow {
+  display: block;
+  color: var(--besitsol-green);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.besitsol-materials__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+}
+
+.besitsol-materials__card {
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 2.5rem;
+  border-radius: 1rem;
+  transition: background 0.3s;
+}
+
+.besitsol-materials__card:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.besitsol-materials__card-icon {
+  color: var(--besitsol-green);
+  margin-bottom: 1.5rem;
+}
+
+.besitsol-materials__card-title {
+  font-family: var(--besitsol-font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.besitsol-materials__card-desc {
+  color: rgba(242,233,216,0.7);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+
+/* ============================================
+   CERTIFICATIONS SECTION
+   ============================================ */
+.besitsol-certs {
+  background-color: #f8f5f0;
+  color: var(--besitsol-brown);
+  justify-content: center;
+}
+
+.besitsol-certs__layout {
+  display: flex;
+  gap: 4rem;
+  align-items: center;
+}
+
+.besitsol-certs__content {
+  flex: 1;
+}
+
+.besitsol-certs__heading {
+  color: var(--besitsol-forest);
+  margin-bottom: 1.5rem;
+}
+
+.besitsol-certs__subtitle {
+  color: var(--besitsol-gray);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.besitsol-certs__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.besitsol-certs__list-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.besitsol-certs__check-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(107,142,35,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--besitsol-green);
+  flex-shrink: 0;
+}
+
+.besitsol-certs__grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.besitsol-certs__badge {
+  background: var(--besitsol-white);
+  padding: 2rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s;
+}
+
+.besitsol-certs__badge:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.besitsol-certs__badge-icon {
+  color: var(--besitsol-green);
+  margin-bottom: 1rem;
+}
+
+.besitsol-certs__badge-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--besitsol-brown);
+}
+
+.besitsol-certs__badge-desc {
+  font-size: 0.75rem;
+  color: var(--besitsol-gray);
+  margin-top: 0.5rem;
+}
+
+/* ============================================
+   SPECS SECTION
+   ============================================ */
+.besitsol-specs {
+  background-color: var(--besitsol-cream);
+  color: var(--besitsol-brown);
+  justify-content: center;
+}
+
+.besitsol-specs__header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.besitsol-specs__header .besitsol-heading {
+  color: var(--besitsol-forest);
+}
+
+.besitsol-specs__subtitle {
+  color: var(--besitsol-gray);
+  font-size: 1.1rem;
+  max-width: 40rem;
+  margin: 1rem auto 0;
+  line-height: 1.6;
+}
+
+.besitsol-specs__layout {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+}
+
+.besitsol-specs__features {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.besitsol-specs__feature {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.besitsol-specs__feature-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--besitsol-white);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--besitsol-green);
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.besitsol-specs__feature:hover .besitsol-specs__feature-icon {
+  background: var(--besitsol-green);
+  color: var(--besitsol-white);
+}
+
+.besitsol-specs__feature-title {
+  font-family: var(--besitsol-font-heading);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.besitsol-specs__feature-desc {
+  color: var(--besitsol-gray);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.besitsol-specs__diagram {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 0;
+}
+
+.besitsol-specs__diagram-glow {
+  position: absolute;
+  inset: 0;
+  background: var(--besitsol-green);
+  opacity: 0.05;
+  border-radius: 50%;
+  filter: blur(60px);
+}
+
+.besitsol-specs__diagram-svg,
+.besitsol-specs__diagram-img {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.1));
+}
+
+
+/* ============================================
+   ADVANTAGES SECTION
+   ============================================ */
+.besitsol-advantages {
+  background-color: var(--besitsol-white);
+  color: var(--besitsol-brown);
+  justify-content: center;
+}
+
+.besitsol-advantages__header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.besitsol-advantages__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+.besitsol-advantages__card {
+  padding: 2rem;
+  border: 1px solid #f0f0f0;
+  border-radius: 0.75rem;
+  background: rgba(249,249,249,0.5);
+  text-align: center;
+  transition: box-shadow 0.3s;
+}
+
+.besitsol-advantages__card:hover {
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+.besitsol-advantages__card-icon {
+  color: var(--besitsol-terra);
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.besitsol-advantages__card-title {
+  font-family: var(--besitsol-font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.besitsol-advantages__card-desc {
+  color: var(--besitsol-gray);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ============================================
+   UGC / REVIEWS SECTION
+   ============================================ */
+.besitsol-ugc {
+  background-color: var(--besitsol-cream);
+  color: var(--besitsol-brown);
+  justify-content: center;
+}
+
+.besitsol-ugc__header {
+  margin-bottom: 3rem;
+}
+
+.besitsol-ugc__header .besitsol-heading {
+  color: var(--besitsol-forest);
+}
+
+.besitsol-ugc__subtitle {
+  color: var(--besitsol-gray);
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.besitsol-ugc__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.besitsol-ugc__card {
+  background: var(--besitsol-white);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s;
+}
+
+.besitsol-ugc__card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.besitsol-ugc__stars {
+  display: flex;
+  gap: 0.125rem;
+  margin-bottom: 1rem;
+  color: #facc15;
+}
+
+.besitsol-ugc__star {
+  width: 1rem;
+  height: 1rem;
+}
+
+.besitsol-ugc__quote {
+  font-weight: 500;
+  font-style: italic;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.besitsol-ugc__author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.besitsol-ugc__avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--besitsol-white);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.besitsol-ugc__name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--besitsol-forest);
+}
+
+.besitsol-ugc__location {
+  font-size: 0.75rem;
+  color: var(--besitsol-gray);
+}
+
+.besitsol-ugc__cta-card {
+  background: var(--besitsol-forest);
+  color: var(--besitsol-cream);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.besitsol-ugc__cta-card:hover {
+  background: var(--besitsol-brown);
+}
+
+.besitsol-ugc__cta-title {
+  font-family: var(--besitsol-font-heading);
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.besitsol-ugc__cta-desc {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+
+/* ============================================
+   FAQ & FOOTER SECTION
+   ============================================ */
+.besitsol-faq-footer {
+  background: var(--besitsol-white);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.besitsol-faq-footer__content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 4rem 0;
+}
+
+.besitsol-faq__layout {
+  display: flex;
+  gap: 4rem;
+}
+
+.besitsol-faq__intro {
+  flex: 0 0 33%;
+}
+
+.besitsol-faq__intro .besitsol-heading {
+  color: var(--besitsol-forest);
+  margin-bottom: 1rem;
+}
+
+.besitsol-faq__intro-text {
+  color: var(--besitsol-gray);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.besitsol-faq__support-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--besitsol-green);
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+.besitsol-faq__support-btn:hover {
+  color: var(--besitsol-forest);
+}
+
+.besitsol-faq__items {
+  flex: 1;
+}
+
+.besitsol-faq__item {
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 1rem;
+}
+
+.besitsol-faq__question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--besitsol-brown);
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.besitsol-faq__question:hover {
+  color: var(--besitsol-green);
+}
+
+.besitsol-faq__chevron {
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+
+.besitsol-faq__item.active .besitsol-faq__chevron {
+  transform: rotate(180deg);
+}
+
+.besitsol-faq__answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+  color: var(--besitsol-gray);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.besitsol-faq__item.active .besitsol-faq__answer {
+  max-height: 200px;
+}
+
+/* Footer */
+.besitsol-footer {
+  background: var(--besitsol-brown);
+  color: var(--besitsol-cream);
+  padding: 2.5rem 0;
+}
+
+.besitsol-footer__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr;
+  gap: 2rem;
+}
+
+.besitsol-footer__logo {
+  margin-bottom: 1rem;
+}
+
+.besitsol-footer__brand-desc {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  max-width: 24rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.besitsol-footer__social {
+  display: flex;
+  gap: 1rem;
+}
+
+.besitsol-footer__social a {
+  color: var(--besitsol-cream);
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.besitsol-footer__social a:hover {
+  opacity: 1;
+}
+
+.besitsol-footer__links-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.besitsol-footer__links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.besitsol-footer__links li {
+  margin-bottom: 0.5rem;
+}
+
+.besitsol-footer__links a {
+  color: var(--besitsol-cream);
+  opacity: 0.7;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.besitsol-footer__links a:hover {
+  color: var(--besitsol-green);
+  opacity: 1;
+}
+
+.besitsol-footer__newsletter-desc {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+.besitsol-footer__input-group {
+  display: flex;
+}
+
+.besitsol-footer__input {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem 0 0 0.375rem;
+  width: 100%;
+  color: var(--besitsol-white);
+  font-size: 0.85rem;
+}
+
+.besitsol-footer__input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.besitsol-footer__input:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--besitsol-green);
+}
+
+.besitsol-footer__submit {
+  background: var(--besitsol-green);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0.375rem 0.375rem 0;
+  color: var(--besitsol-white);
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.besitsol-footer__submit:hover {
+  background: var(--besitsol-forest);
+}
+
+.besitsol-footer__bottom {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.besitsol-footer__bottom-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.besitsol-footer__bottom-links a {
+  color: var(--besitsol-cream);
+  text-decoration: none;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .besitsol-hero__content {
+    padding: 2rem;
+  }
+  
+  .besitsol-hero__title {
+    font-size: 2.5rem;
+  }
+  
+  .besitsol-specs__layout {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .besitsol-certs__layout {
+    flex-direction: column;
+  }
+  
+  .besitsol-advantages__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .besitsol-faq__layout {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .besitsol-footer__grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .besitsol-hero__nav {
+    display: none;
+  }
+  
+  .besitsol-hero__main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .besitsol-hero__switcher {
+    align-items: flex-start;
+    margin-top: 2rem;
+  }
+  
+  .besitsol-hero__title {
+    font-size: 2rem;
+  }
+  
+  .besitsol-diy__header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .besitsol-diy__grid,
+  .besitsol-materials__grid,
+  .besitsol-ugc__grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .besitsol-advantages__grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .besitsol-certs__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .besitsol-heading {
+    font-size: 1.75rem;
+  }
+}
+
+/* ============================================
+   SCROLLBAR (for inner scrollable areas)
+   ============================================ */
+.besitsol-section ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.besitsol-section ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.besitsol-section ::-webkit-scrollbar-thumb {
+  background: var(--besitsol-gray);
+  border-radius: 3px;
+}

@@ -1,0 +1,95 @@
+{% comment %}
+  BESITSOL Advantages Section — 优势展示
+{% endcomment %}
+
+<section id="s-advantages" class="besitsol-section besitsol-advantages">
+  <div class="besitsol-container">
+    <div class="besitsol-advantages__header">
+      <h2 class="besitsol-heading">{{ section.settings.heading }}</h2>
+      <div class="besitsol-divider"></div>
+    </div>
+
+    <div class="besitsol-advantages__grid">
+      {%- for block in section.blocks -%}
+        <div class="besitsol-advantages__card" {{ block.shopify_attributes }}>
+          <div class="besitsol-advantages__card-icon">
+            {% case block.settings.icon %}
+              {% when 'sun' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              {% when 'award' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+              {% when 'leaf' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+              {% when 'smartphone' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+            {% endcase %}
+          </div>
+          <h4 class="besitsol-advantages__card-title">{{ block.settings.title }}</h4>
+          <p class="besitsol-advantages__card-desc">{{ block.settings.description }}</p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "BESITSOL Advantages",
+  "tag": "div",
+  "class": "besitsol-advantages-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Why Choose BESITSOL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "advantage",
+      "name": "Advantage Card",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "sun", "label": "Sun / Weather" },
+            { "value": "award", "label": "Award / Warranty" },
+            { "value": "leaf", "label": "Leaf / Energy" },
+            { "value": "smartphone", "label": "Smartphone / Smart" }
+          ],
+          "default": "sun"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Advantage Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Description goes here."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BESITSOL Advantages",
+      "blocks": [
+        { "type": "advantage", "settings": { "icon": "sun", "title": "All-Weather Protection", "description": "Shade from the summer heat and shelter from the rain. Transforming unpredictable weather into a guaranteed comfortable experience." } },
+        { "type": "advantage", "settings": { "icon": "award", "title": "10-Year Warranty", "description": "Absolute confidence in our quality. A 10-year warranty on the frame and fabric, and 5 years on the motor system." } },
+        { "type": "advantage", "settings": { "icon": "leaf", "title": "Energy Efficient", "description": "Effectively blocks direct sunlight, lowering indoor temperatures by 5-8 degrees in summer and reducing AC costs." } },
+        { "type": "advantage", "settings": { "icon": "smartphone", "title": "Smart Sensors", "description": "Optional smart weather sensors automatically retract the awning before strong winds or heavy rain arrive." } }
+      ]
+    }
+  ]
+}
+{% endschema %}
