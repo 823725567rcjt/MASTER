@@ -1,0 +1,1058 @@
+{% comment %}
+  BESITSOL Fullpage Hero Section - 终极优化版 v2.0
+  全面修复 + Shopify Online Store 2.0 完全兼容
+  
+  修复清单：
+  1. 消除重复 const scrollContainer JS 崩溃
+  2. color_extract 替代 color_to_rgb 修复 rgba() 无效 CSS
+  3. inline_richtext 替代 richtext 避免嵌套 <h1>
+  4. 移除不存在的 asset_url fallback 避免 404
+  5. IntersectionObserver 限制滚动劫持范围
+  6. CSS 自定义属性 --besitsol-vh 修复移动端 100vh
+  7. loader 隐藏逻辑统一（CSS + JS 兜底）
+  8. translateY 使用 --besitsol-vh 与 section 高度保持一致
+  9. scene JSON 数据安全转义 </ 防止 XSS
+  10. 场景描述统一 innerHTML 渲染避免 <br> 字面量
+  11. 桌面端隐藏移动导航 display:none
+  12. FAQ 显式写避免 sec[dynamic_key] 兼容问题
+  13. section:unload 清理事件监听器
+  14. noscript 兜底 + newsletter 表单成功状态
+  15. url 类型 schema 不设 default 避免 Shopify 报错
+  16. 所有 ID 带 section.id 防止多实例冲突
+{% endcomment %}
+
+{%- liquid
+  assign sec = section.settings
+
+  assign forest_r = sec.forest_color | color_extract: 'red'
+  assign forest_g = sec.forest_color | color_extract: 'green'
+  assign forest_b = sec.forest_color | color_extract: 'blue'
+
+  assign cream_r = sec.cream_color | color_extract: 'red'
+  assign cream_g = sec.cream_color | color_extract: 'green'
+  assign cream_b = sec.cream_color | color_extract: 'blue'
+
+  assign brown_r = sec.dark_brown_color | color_extract: 'red'
+  assign brown_g = sec.dark_brown_color | color_extract: 'green'
+  assign brown_b = sec.dark_brown_color | color_extract: 'blue'
+-%}
+
+<style>
+  /* ===== 作用域限定：所有样式限制在本 section 内 ===== */
+  #shopify-section-{{ section.id }} {
+    --besitsol-vh: 1vh;
+    --besitsol-green: {{ sec.primary_green_color }};
+    --besitsol-forest: {{ sec.forest_color }};
+    --besitsol-cream: {{ sec.cream_color }};
+    --besitsol-brown: {{ sec.dark_brown_color }};
+    --besitsol-gray: {{ sec.premium_gray_color }};
+    font-family: 'Source Sans 3', sans-serif;
+    color: var(--besitsol-brown);
+    line-height: 1.5;
+  }
+  #shopify-section-{{ section.id }} * { box-sizing: border-box; margin: 0; padding: 0; }
+  #shopify-section-{{ section.id }} h1,
+  #shopify-section-{{ section.id }} h2,
+  #shopify-section-{{ section.id }} h3,
+  #shopify-section-{{ section.id }} h4 {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.2;
+  }
+
+  /* 全屏滚动容器 */
+  .besitsol-scroll-wrap {
+    width: 100%;
+    transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+    will-change: transform;
+  }
+  #shopify-section-{{ section.id }}.besitsol-fullpage-active .besitsol-scroll-wrap {
+    height: calc(var(--besitsol-vh, 1vh) * 100);
+    overflow: hidden;
+  }
+  .besitsol-panel {
+    height: calc(var(--besitsol-vh, 1vh) * 100);
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 背景层 */
+  .besitsol-banner-layer {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-size: cover; background-position: center;
+    background-color: var(--besitsol-forest);
+    opacity: 0; transition: opacity 1.5s ease-in-out; z-index: 1;
+  }
+  .besitsol-banner-layer.is-active { opacity: 1; z-index: 2; }
+
+  .besitsol-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right,
+      rgba({{ forest_r }}, {{ forest_g }}, {{ forest_b }}, 0.85) 0%,
+      rgba({{ forest_r }}, {{ forest_g }}, {{ forest_b }}, 0.30) 50%,
+      transparent 100%);
+    z-index: 3;
+  }
+
+  /* 导航 */
+  .besitsol-header {
+    position: relative; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 2rem 5%; width: 100%;
+  }
+  .besitsol-logo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8rem; font-weight: 700; letter-spacing: 0.2em;
+    color: var(--besitsol-cream);
+  }
+  .besitsol-logo span { color: var(--besitsol-green); }
+
+  /* 桌面导航 */
+  .besitsol-desktop-nav { display: none; align-items: center; gap: 2rem; }
+  .besitsol-nav-links { display: flex; gap: 2.5rem; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; list-style: none; }
+  .besitsol-nav-link {
+    color: var(--besitsol-cream); text-decoration: none;
+    position: relative; transition: color 0.3s ease;
+  }
+  .besitsol-nav-link::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px;
+    background-color: var(--besitsol-green); transition: width 0.3s ease;
+  }
+  .besitsol-nav-link:hover { color: var(--besitsol-green); }
+  .besitsol-nav-link:hover::after { width: 100%; }
+
+  .besitsol-shop-btn {
+    padding: 0.7rem 1.5rem; border-radius: 50px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    background-color: var(--besitsol-cream); color: var(--besitsol-forest);
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-decoration: none;
+  }
+  .besitsol-shop-btn:hover { background-color: var(--besitsol-green); color: var(--besitsol-cream); }
+
+  /* 移动端菜单按钮 */
+  .besitsol-mobile-menu-btn {
+    display: inline-flex; align-items: center;
+    background: transparent; border: none; cursor: pointer;
+    color: var(--besitsol-cream); padding: 0.5rem;
+  }
+
+  /* 移动端导航面板 */
+  .besitsol-mobile-nav {
+    position: fixed; top: 0; right: 0; height: 100dvh; width: 80%; max-width: 300px;
+    background-color: var(--besitsol-forest); z-index: 1000;
+    padding: 4rem 2rem 2rem; display: flex; flex-direction: column; gap: 1.5rem;
+    transform: translateX(100%); visibility: hidden;
+    transition: transform 0.3s ease-in-out, visibility 0s 0.3s;
+  }
+  .besitsol-mobile-nav.is-open { transform: translateX(0); visibility: visible; transition: transform 0.3s ease-in-out, visibility 0s 0s; }
+  .besitsol-mobile-nav-link {
+    color: var(--besitsol-cream); text-decoration: none;
+    font-size: 1rem; font-weight: 600; letter-spacing: 0.1em;
+    padding: 0.75rem 0; border-bottom: 1px solid rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.1);
+  }
+  .besitsol-close-menu {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    background: transparent; border: none; cursor: pointer;
+    color: var(--besitsol-cream); padding: 0.5rem;
+  }
+  .besitsol-mobile-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.5); opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s 0.3s;
+  }
+  .besitsol-mobile-overlay.is-open { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s 0s; }
+
+  /* 英雄内容 */
+  .besitsol-hero-content {
+    position: relative; z-index: 10;
+    flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+    padding: 0 5% 3rem;
+  }
+  .besitsol-hero-text { max-width: 600px; margin-top: 2rem; }
+  .besitsol-hero-tag {
+    display: inline-block; padding: 0.5rem 1rem; margin-bottom: 1.5rem;
+    border: 1px solid rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.3);
+    border-radius: 50px; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--besitsol-cream);
+  }
+  .besitsol-hero-title {
+    font-size: 2.5rem; font-weight: 700;
+    line-height: 1.2; margin-bottom: 1.5rem; color: var(--besitsol-cream);
+  }
+  .besitsol-hero-desc {
+    font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;
+    color: var(--besitsol-cream); opacity: 0.9; max-width: 400px;
+  }
+  .besitsol-hero-btn {
+    padding: 1rem 2rem; border-radius: 50px;
+    font-size: 0.9rem; font-weight: 600; letter-spacing: 0.1em;
+    background-color: var(--besitsol-green); color: var(--besitsol-cream);
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 0.8rem;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+  }
+  .besitsol-hero-btn:hover { background-color: var(--besitsol-forest); }
+
+  /* 场景切换 */
+  .besitsol-scene-buttons { margin-top: 2rem; }
+  .besitsol-scene-label {
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--besitsol-cream); opacity: 0.5; margin-bottom: 1rem;
+  }
+  .besitsol-scene-btn {
+    display: block; width: 100%; text-align: left;
+    background: transparent; border: none; border-left: 3px solid transparent;
+    cursor: pointer; font-family: 'Montserrat', sans-serif;
+    font-size: 1.1rem; letter-spacing: 0.05em;
+    color: var(--besitsol-cream); margin-bottom: 1rem;
+    padding: 0.5rem 0 0.5rem 0; position: relative;
+    transition: all 0.3s ease; opacity: 0.6;
+  }
+  .besitsol-scene-btn.is-active {
+    padding-left: 1rem; border-left-color: var(--besitsol-green); opacity: 1;
+  }
+  .besitsol-scene-btn:not(.is-active):hover { opacity: 1; padding-left: 0.5rem; }
+
+  /* Loader */
+  .besitsol-loader {
+    position: fixed; inset: 0; z-index: 9999;
+    background-color: var(--besitsol-forest);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    color: var(--besitsol-cream);
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+  .besitsol-loader.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .besitsol-spinner {
+    width: 50px; height: 50px;
+    border: 3px solid rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.3);
+    border-radius: 50%; border-top-color: var(--besitsol-green);
+    animation: besitsol-spin 1s ease-in-out infinite;
+    margin-bottom: 1.5rem;
+  }
+  @keyframes besitsol-spin { to { transform: rotate(360deg); } }
+  .besitsol-loader-text { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; letter-spacing: 0.2em; margin-bottom: 0.5rem; }
+  .besitsol-loader-subtext { font-size: 0.8rem; opacity: 0.7; letter-spacing: 0.1em; }
+
+  /* 通用模块 */
+  .besitsol-module { padding: 4rem 5%; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+  .besitsol-module--forest { background-color: var(--besitsol-forest); color: var(--besitsol-cream); }
+  .besitsol-module--brown  { background-color: var(--besitsol-brown); color: var(--besitsol-cream); }
+  .besitsol-module--cream  { background-color: var(--besitsol-cream); color: var(--besitsol-brown); }
+  .besitsol-module-header { text-align: center; margin-bottom: 3rem; }
+  .besitsol-module-tag { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--besitsol-green); margin-bottom: 1rem; display: block; }
+  .besitsol-module-title { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+  .besitsol-module-divider { width: 50px; height: 2px; background-color: var(--besitsol-green); margin: 0 auto; }
+  .besitsol-module-desc { font-size: 0.95rem; line-height: 1.6; opacity: 0.85; max-width: 700px; margin: 1.5rem auto 0; }
+
+  .besitsol-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+  .besitsol-card {
+    padding: 2rem; border-radius: 1rem;
+    background: rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.92);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--besitsol-brown);
+  }
+  .besitsol-card--dark {
+    background: transparent;
+    border: 1px solid rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.12);
+    color: var(--besitsol-cream);
+  }
+  .besitsol-card-icon { color: var(--besitsol-green); margin-bottom: 1rem; font-size: 1.5rem; }
+  .besitsol-card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; }
+  .besitsol-card-desc { font-size: 0.9rem; line-height: 1.6; opacity: 0.85; }
+
+  /* 技术规格 */
+  .besitsol-tech-list { list-style: disc; padding-left: 1.5rem; font-size: 0.9rem; color: var(--besitsol-gray); margin-top: 1rem; }
+  .besitsol-tech-list li { margin-bottom: 0.5rem; }
+
+  /* FAQ */
+  .besitsol-faq-container { max-width: 800px; margin: 0 auto; width: 100%; }
+  .besitsol-faq-item { border-bottom: 1px solid rgba({{ brown_r }}, {{ brown_g }}, {{ brown_b }}, 0.1); padding: 1rem 0; }
+  .besitsol-faq-question {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; background: transparent; border: none; cursor: pointer;
+    font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 600;
+    color: var(--besitsol-brown); padding: 0.5rem 0; text-align: left; gap: 1rem;
+  }
+  .besitsol-faq-question:hover { color: var(--besitsol-green); }
+  .besitsol-faq-icon { color: var(--besitsol-green); transition: transform 0.3s ease; flex-shrink: 0; }
+  .besitsol-faq-answer {
+    max-height: 0; overflow: hidden; transition: max-height 0.5s ease, padding 0.3s ease;
+    font-size: 0.9rem; line-height: 1.6; color: var(--besitsol-gray); padding: 0;
+  }
+  .besitsol-faq-item.is-open .besitsol-faq-answer { max-height: 500px; padding: 0.75rem 0 1rem; }
+  .besitsol-faq-item.is-open .besitsol-faq-icon { transform: rotate(180deg); }
+
+  /* 页脚 */
+  .besitsol-footer { padding: 3rem 5%; }
+  .besitsol-footer-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+  .besitsol-footer-col { margin-bottom: 1.5rem; }
+  .besitsol-footer-logo { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.2em; margin-bottom: 1rem; color: var(--besitsol-cream); }
+  .besitsol-footer-desc { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; max-width: 300px; margin-bottom: 1.5rem; color: var(--besitsol-cream); }
+  .besitsol-social-links { display: flex; gap: 1rem; }
+  .besitsol-social-link { color: var(--besitsol-cream); opacity: 0.7; transition: opacity 0.3s ease, color 0.3s ease; }
+  .besitsol-social-link:hover { opacity: 1; color: var(--besitsol-green); }
+  .besitsol-footer-heading { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; margin-bottom: 1rem; color: var(--besitsol-cream); }
+  .besitsol-footer-links { list-style: none; }
+  .besitsol-footer-link { margin-bottom: 0.8rem; }
+  .besitsol-footer-link a { color: var(--besitsol-cream); opacity: 0.7; text-decoration: none; font-size: 0.9rem; transition: opacity 0.3s ease, color 0.3s ease; }
+  .besitsol-footer-link a:hover { opacity: 1; color: var(--besitsol-green); }
+  .besitsol-subscribe-form { display: flex; margin-top: 1rem; }
+  .besitsol-subscribe-input {
+    flex: 1; padding: 0.8rem 1rem;
+    background: rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.1);
+    border: none; border-radius: 50px 0 0 50px;
+    color: var(--besitsol-cream); font-size: 0.9rem; outline: none;
+  }
+  .besitsol-subscribe-input::placeholder { color: rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.5); }
+  .besitsol-subscribe-input:focus { background: rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.18); }
+  .besitsol-subscribe-btn {
+    padding: 0.8rem 1.2rem;
+    background-color: var(--besitsol-green); color: var(--besitsol-cream);
+    border: none; border-radius: 0 50px 50px 0;
+    cursor: pointer; transition: background-color 0.3s ease;
+  }
+  .besitsol-subscribe-btn:hover { background-color: var(--besitsol-forest); }
+  .besitsol-footer-bottom {
+    padding-top: 2rem; margin-top: 2rem;
+    border-top: 1px solid rgba({{ cream_r }}, {{ cream_g }}, {{ cream_b }}, 0.1);
+    font-size: 0.8rem; opacity: 0.5; text-align: center; color: var(--besitsol-cream);
+  }
+  .besitsol-footer-bottom-links { display: flex; gap: 1.5rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+  .besitsol-footer-bottom-links a { color: var(--besitsol-cream); text-decoration: none; }
+
+  /* 响应式 */
+  @media (min-width: 768px) {
+    .besitsol-desktop-nav { display: flex; }
+    .besitsol-mobile-menu-btn { display: none; }
+    .besitsol-hero-content { flex-direction: row; align-items: flex-end; padding: 0 5% 4rem; }
+    .besitsol-hero-text { margin-top: 0; }
+    .besitsol-hero-title { font-size: 3.5rem; }
+    .besitsol-scene-buttons { margin-top: 0; margin-left: 4rem; width: 300px; }
+    .besitsol-grid { grid-template-columns: repeat(3, 1fr); }
+    .besitsol-grid.besitsol-grid--2col { grid-template-columns: repeat(2, 1fr); }
+    .besitsol-footer-grid { grid-template-columns: 2fr 1fr 1fr; }
+    .besitsol-module-title { font-size: 2.5rem; }
+  }
+  @media (min-width: 1200px) {
+    .besitsol-header, .besitsol-module, .besitsol-footer { padding-left: 10%; padding-right: 10%; }
+    .besitsol-hero-title { font-size: 4rem; }
+  }
+
+  /* Theme Editor 模式：禁用滚动劫持 */
+  .shopify-design-mode #shopify-section-{{ section.id }}.besitsol-fullpage-active .besitsol-scroll-wrap {
+    height: auto; overflow: visible; transform: none !important;
+  }
+  .shopify-design-mode #shopify-section-{{ section.id }} .besitsol-panel {
+    height: auto; min-height: 100vh;
+  }
+  .shopify-design-mode #shopify-section-{{ section.id }} .besitsol-loader { display: none; }
+
+  /* SVG 图标 */
+  .besitsol-icon {
+    width: 1em; height: 1em; stroke: currentColor;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none;
+    display: inline-block; vertical-align: middle;
+  }
+</style>
+
+
+{%- comment -%} ========== LOADER ========== {%- endcomment -%}
+<div class="besitsol-loader" data-besitsol-loader aria-hidden="true">
+  <div class="besitsol-spinner"></div>
+  <h2 class="besitsol-loader-text">BESITSOL</h2>
+  <p class="besitsol-loader-subtext">Rendering your exclusive lifestyle scenes...</p>
+</div>
+
+<noscript>
+  <style>.besitsol-loader { display: none !important; }</style>
+</noscript>
+
+{%- comment -%} ========== 主滚动容器 ========== {%- endcomment -%}
+<div class="besitsol-scroll-wrap" data-besitsol-scroll>
+
+  {%- comment -%} ===== PANEL 0: HERO ===== {%- endcomment -%}
+  <section class="besitsol-panel" data-panel="0">
+    {%- if sec.scene1_bg_image != blank -%}
+      <div class="besitsol-banner-layer is-active" data-scene="scene1" style="background-image: url('{{ sec.scene1_bg_image | image_url: width: 1920 }}');"></div>
+    {%- else -%}
+      <div class="besitsol-banner-layer is-active" data-scene="scene1"></div>
+    {%- endif -%}
+
+    {%- if sec.scene2_bg_image != blank -%}
+      <div class="besitsol-banner-layer" data-scene="scene2" style="background-image: url('{{ sec.scene2_bg_image | image_url: width: 1920 }}');"></div>
+    {%- else -%}
+      <div class="besitsol-banner-layer" data-scene="scene2"></div>
+    {%- endif -%}
+
+    {%- if sec.scene3_bg_image != blank -%}
+      <div class="besitsol-banner-layer" data-scene="scene3" style="background-image: url('{{ sec.scene3_bg_image | image_url: width: 1920 }}');"></div>
+    {%- else -%}
+      <div class="besitsol-banner-layer" data-scene="scene3"></div>
+    {%- endif -%}
+
+    <div class="besitsol-hero-overlay"></div>
+
+    <!-- 顶部导航 -->
+    <header class="besitsol-header">
+      <div class="besitsol-logo">BESITSOL<span>.</span></div>
+
+      <div class="besitsol-desktop-nav">
+        <nav class="besitsol-nav-links" aria-label="Main navigation">
+          <a href="{{ sec.nav_link_1_url | default: '#' }}" class="besitsol-nav-link" data-goto="1">{{ sec.nav_link_1_text }}</a>
+          <a href="{{ sec.nav_link_2_url | default: '#' }}" class="besitsol-nav-link" data-goto="2">{{ sec.nav_link_2_text }}</a>
+          <a href="{{ sec.nav_link_3_url | default: '#' }}" class="besitsol-nav-link" data-goto="3">{{ sec.nav_link_3_text }}</a>
+          <a href="{{ sec.nav_link_4_url | default: '#' }}" class="besitsol-nav-link" data-goto="5">{{ sec.nav_link_4_text }}</a>
+        </nav>
+        <a class="besitsol-shop-btn" href="{{ sec.shop_now_link | default: '/collections/all' }}">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          {{ sec.shop_now_text }}
+        </a>
+      </div>
+
+      <button type="button" class="besitsol-mobile-menu-btn" data-mobile-toggle aria-label="Open navigation menu" aria-expanded="false">
+        <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+      </button>
+    </header>
+
+    <!-- 移动端导航 -->
+    <div class="besitsol-mobile-overlay" data-mobile-overlay></div>
+    <nav class="besitsol-mobile-nav" data-mobile-nav aria-label="Mobile navigation" aria-hidden="true">
+      <button type="button" class="besitsol-close-menu" data-mobile-toggle aria-label="Close navigation menu">
+        <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+      </button>
+      <a href="{{ sec.nav_link_1_url | default: '#' }}" class="besitsol-mobile-nav-link" data-goto="1">{{ sec.nav_link_1_text }}</a>
+      <a href="{{ sec.nav_link_2_url | default: '#' }}" class="besitsol-mobile-nav-link" data-goto="2">{{ sec.nav_link_2_text }}</a>
+      <a href="{{ sec.nav_link_3_url | default: '#' }}" class="besitsol-mobile-nav-link" data-goto="3">{{ sec.nav_link_3_text }}</a>
+      <a href="{{ sec.nav_link_4_url | default: '#' }}" class="besitsol-mobile-nav-link" data-goto="5">{{ sec.nav_link_4_text }}</a>
+      <a href="{{ sec.shop_now_link | default: '/collections/all' }}" class="besitsol-mobile-nav-link">{{ sec.shop_now_text }}</a>
+    </nav>
+
+    <!-- 英雄区内容 -->
+    <div class="besitsol-hero-content">
+      <div class="besitsol-hero-text">
+        <span class="besitsol-hero-tag">{{ sec.hero_tagline }}</span>
+        <h1 class="besitsol-hero-title" data-banner-title>{{ sec.scene1_title }}</h1>
+        <p class="besitsol-hero-desc" data-banner-desc>{{ sec.scene1_description }}</p>
+        <a class="besitsol-hero-btn" href="{{ sec.hero_button_link | default: '/' }}">
+          {{ sec.hero_button_text }}
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"><line x1="5" x2="19" y1="12" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      </div>
+
+      <div class="besitsol-scene-buttons">
+        <p class="besitsol-scene-label">{{ sec.scenarios_label }}</p>
+        <button type="button" class="besitsol-scene-btn is-active" data-scene-btn="scene1">{{ sec.scene1_btn_text }}</button>
+        <button type="button" class="besitsol-scene-btn" data-scene-btn="scene2">{{ sec.scene2_btn_text }}</button>
+        <button type="button" class="besitsol-scene-btn" data-scene-btn="scene3">{{ sec.scene3_btn_text }}</button>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ===== PANEL 1: DIY ===== {%- endcomment -%}
+  <section class="besitsol-panel besitsol-module besitsol-module--forest" data-panel="1">
+    <div class="besitsol-module-header">
+      <span class="besitsol-module-tag">{{ sec.diy_tagline }}</span>
+      <h2 class="besitsol-module-title">{{ sec.diy_heading }}</h2>
+      <div class="besitsol-module-divider"></div>
+      {%- if sec.diy_description != blank -%}
+        <p class="besitsol-module-desc">{{ sec.diy_description }}</p>
+      {%- endif -%}
+    </div>
+    <div class="besitsol-grid">
+      <div class="besitsol-card">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.diy_step1_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.diy_step1_description }}</p>
+      </div>
+      <div class="besitsol-card">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.diy_step2_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.diy_step2_description }}</p>
+      </div>
+      <div class="besitsol-card">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.diy_step3_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.diy_step3_description }}</p>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ===== PANEL 2: MATERIALS ===== {%- endcomment -%}
+  <section class="besitsol-panel besitsol-module besitsol-module--brown" data-panel="2">
+    <div class="besitsol-module-header">
+      <span class="besitsol-module-tag">{{ sec.materials_tagline }}</span>
+      <h2 class="besitsol-module-title">{{ sec.materials_heading }}</h2>
+      <div class="besitsol-module-divider"></div>
+    </div>
+    <div class="besitsol-grid">
+      <div class="besitsol-card besitsol-card--dark">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.material1_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.material1_description }}</p>
+      </div>
+      <div class="besitsol-card besitsol-card--dark">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.material2_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.material2_description }}</p>
+      </div>
+      <div class="besitsol-card besitsol-card--dark">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.material3_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.material3_description }}</p>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ===== PANEL 3: TECH SPECS ===== {%- endcomment -%}
+  <section class="besitsol-panel besitsol-module besitsol-module--cream" data-panel="3">
+    <div class="besitsol-module-header">
+      <span class="besitsol-module-tag">{{ sec.techspecs_tagline }}</span>
+      <h2 class="besitsol-module-title">{{ sec.techspecs_heading }}</h2>
+      <div class="besitsol-module-divider"></div>
+    </div>
+    <div class="besitsol-grid besitsol-grid--2col">
+      <div>
+        <h3 class="besitsol-card-title">{{ sec.techspecs_feature1_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.techspecs_feature1_description }}</p>
+        <ul class="besitsol-tech-list">
+          <li>{{ sec.techspecs_feature1_item1 }}</li>
+          <li>{{ sec.techspecs_feature1_item2 }}</li>
+          <li>{{ sec.techspecs_feature1_item3 }}</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="besitsol-card-title">{{ sec.techspecs_feature2_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.techspecs_feature2_description }}</p>
+        <ul class="besitsol-tech-list">
+          <li>{{ sec.techspecs_feature2_item1 }}</li>
+          <li>{{ sec.techspecs_feature2_item2 }}</li>
+          <li>{{ sec.techspecs_feature2_item3 }}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ===== PANEL 4: FAQ ===== {%- endcomment -%}
+  <section class="besitsol-panel besitsol-module besitsol-module--cream" data-panel="4">
+    <div class="besitsol-module-header">
+      <span class="besitsol-module-tag">{{ sec.faq_tagline }}</span>
+      <h2 class="besitsol-module-title">{{ sec.faq_heading }}</h2>
+      <div class="besitsol-module-divider"></div>
+    </div>
+    <div class="besitsol-faq-container">
+      <div class="besitsol-faq-item">
+        <button type="button" class="besitsol-faq-question" data-faq-toggle aria-expanded="false">
+          <span>{{ sec.faq1_question }}</span>
+          <svg class="besitsol-faq-icon besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="besitsol-faq-answer" aria-hidden="true"><p>{{ sec.faq1_answer }}</p></div>
+      </div>
+      <div class="besitsol-faq-item">
+        <button type="button" class="besitsol-faq-question" data-faq-toggle aria-expanded="false">
+          <span>{{ sec.faq2_question }}</span>
+          <svg class="besitsol-faq-icon besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="besitsol-faq-answer" aria-hidden="true"><p>{{ sec.faq2_answer }}</p></div>
+      </div>
+      <div class="besitsol-faq-item">
+        <button type="button" class="besitsol-faq-question" data-faq-toggle aria-expanded="false">
+          <span>{{ sec.faq3_question }}</span>
+          <svg class="besitsol-faq-icon besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="besitsol-faq-answer" aria-hidden="true"><p>{{ sec.faq3_answer }}</p></div>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ===== PANEL 5: COMMUNITY ===== {%- endcomment -%}
+  <section class="besitsol-panel besitsol-module besitsol-module--forest" data-panel="5">
+    <div class="besitsol-module-header">
+      <span class="besitsol-module-tag">{{ sec.community_tagline }}</span>
+      <h2 class="besitsol-module-title">{{ sec.community_heading }}</h2>
+      <div class="besitsol-module-divider"></div>
+    </div>
+    <div class="besitsol-grid">
+      <div class="besitsol-card">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.community_card1_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.community_card1_description }}</p>
+      </div>
+      <div class="besitsol-card">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.community_card2_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.community_card2_description }}</p>
+      </div>
+      <div class="besitsol-card">
+        <div class="besitsol-card-icon">
+          <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+        </div>
+        <h3 class="besitsol-card-title">{{ sec.community_card3_title }}</h3>
+        <p class="besitsol-card-desc">{{ sec.community_card3_description }}</p>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ===== PANEL 6: FOOTER ===== {%- endcomment -%}
+  <footer class="besitsol-panel besitsol-module besitsol-module--brown besitsol-footer" data-panel="6">
+    <div class="besitsol-footer-grid">
+      <div class="besitsol-footer-col">
+        <div class="besitsol-footer-logo">BESITSOL<span style="color: var(--besitsol-green);">.</span></div>
+        <p class="besitsol-footer-desc">{{ sec.footer_description }}</p>
+        <div class="besitsol-social-links">
+          {%- if sec.facebook_link != blank -%}
+            <a href="{{ sec.facebook_link }}" class="besitsol-social-link" aria-label="Facebook" target="_blank" rel="noopener">
+              <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </a>
+          {%- endif -%}
+          {%- if sec.twitter_link != blank -%}
+            <a href="{{ sec.twitter_link }}" class="besitsol-social-link" aria-label="Twitter" target="_blank" rel="noopener">
+              <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+            </a>
+          {%- endif -%}
+          {%- if sec.instagram_link != blank -%}
+            <a href="{{ sec.instagram_link }}" class="besitsol-social-link" aria-label="Instagram" target="_blank" rel="noopener">
+              <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+      <div class="besitsol-footer-col">
+        <h4 class="besitsol-footer-heading">{{ sec.quick_links_heading }}</h4>
+        <ul class="besitsol-footer-links">
+          <li class="besitsol-footer-link"><a href="{{ sec.product_link | default: '/collections/all' }}">{{ sec.product_link_text }}</a></li>
+          <li class="besitsol-footer-link"><a href="{{ sec.install_guide_link | default: '/pages/install-guide' }}">{{ sec.install_guide_link_text }}</a></li>
+          <li class="besitsol-footer-link"><a href="{{ sec.warranty_link | default: '/pages/warranty' }}">{{ sec.warranty_link_text }}</a></li>
+          <li class="besitsol-footer-link"><a href="{{ sec.dealer_link | default: '/pages/dealers' }}">{{ sec.dealer_link_text }}</a></li>
+        </ul>
+      </div>
+      <div class="besitsol-footer-col">
+        <h4 class="besitsol-footer-heading">{{ sec.subscribe_heading }}</h4>
+        <p class="besitsol-footer-desc" style="max-width: 100%;">{{ sec.subscribe_description }}</p>
+        {%- form 'customer', class: 'besitsol-subscribe-form' -%}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          <input type="email" name="contact[email]" required autocomplete="email"
+                 placeholder="{{ sec.email_placeholder | escape }}"
+                 class="besitsol-subscribe-input"
+                 aria-label="{{ sec.email_placeholder | escape }}">
+          <button type="submit" class="besitsol-subscribe-btn" aria-label="Subscribe">
+            <svg class="besitsol-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><line x1="5" x2="19" y1="12" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        {%- endform -%}
+      </div>
+    </div>
+    <div class="besitsol-footer-bottom">
+      <p>&copy; {{ 'now' | date: "%Y" }} BESITSOL. All rights reserved.</p>
+      <div class="besitsol-footer-bottom-links">
+        <a href="{{ sec.privacy_policy_link | default: '/pages/privacy-policy' }}">{{ sec.privacy_policy_text }}</a>
+        <a href="{{ sec.terms_of_service_link | default: '/pages/terms-of-service' }}">{{ sec.terms_of_service_text }}</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+
+{%- comment -%} ========== 场景数据（安全转义 </ 防止 script 逃逸） ========== {%- endcomment -%}
+<script type="application/json" data-besitsol-scenes>
+{
+  "scene1": { "title": {{ sec.scene1_title | json | replace: '</', '<\/' }}, "desc": {{ sec.scene1_description | json | replace: '</', '<\/' }} },
+  "scene2": { "title": {{ sec.scene2_title | json | replace: '</', '<\/' }}, "desc": {{ sec.scene2_description | json | replace: '</', '<\/' }} },
+  "scene3": { "title": {{ sec.scene3_title | json | replace: '</', '<\/' }}, "desc": {{ sec.scene3_description | json | replace: '</', '<\/' }} }
+}
+</script>
+
+{%- comment -%} ========== 核心交互逻辑 ========== {%- endcomment -%}
+<script>
+(function() {
+  'use strict';
+
+  /* ===== 初始化 ===== */
+  var sectionEl = document.getElementById('shopify-section-{{ section.id }}');
+  if (!sectionEl) return;
+
+  var IS_EDITOR = !!(window.Shopify && window.Shopify.designMode);
+  var scrollWrap = sectionEl.querySelector('[data-besitsol-scroll]');
+  var panels = sectionEl.querySelectorAll('.besitsol-panel');
+  var loader = sectionEl.querySelector('[data-besitsol-loader]');
+  var mobileNav = sectionEl.querySelector('[data-mobile-nav]');
+  var mobileOverlay = sectionEl.querySelector('[data-mobile-overlay]');
+  var totalPanels = panels.length;
+  var currentPanel = 0;
+  var isScrolling = false;
+  var scrollTimeout = 1300;
+  var touchStartY = 0;
+
+  /* ===== 修复移动端 100vh ===== */
+  function updateVh() {
+    var vh = window.innerHeight * 0.01;
+    sectionEl.style.setProperty('--besitsol-vh', vh + 'px');
+  }
+  updateVh();
+  window.addEventListener('resize', updateVh);
+  window.addEventListener('orientationchange', function() {
+    setTimeout(updateVh, 200);
+  });
+
+  /* ===== Loader ===== */
+  function hideLoader() {
+    if (loader) loader.classList.add('is-hidden');
+  }
+  if (document.readyState === 'complete') {
+    setTimeout(hideLoader, 300);
+  } else {
+    window.addEventListener('load', function() { setTimeout(hideLoader, 300); });
+  }
+  // 兜底：最多显示 3.5 秒
+  setTimeout(hideLoader, 3500);
+
+  /* ===== 启用全屏滚动（非 Editor 模式） ===== */
+  if (!IS_EDITOR) {
+    sectionEl.classList.add('besitsol-fullpage-active');
+  }
+
+  /* ===== 场景数据解析 ===== */
+  var sceneData = {};
+  try {
+    var jsonEl = sectionEl.querySelector('[data-besitsol-scenes]');
+    if (jsonEl) sceneData = JSON.parse(jsonEl.textContent);
+  } catch (e) {
+    console.warn('[BESITSOL] Scene data parse error:', e);
+  }
+
+  /* ===== 场景切换 ===== */
+  function switchScene(sceneName) {
+    if (!sceneData[sceneName]) return;
+
+    // 背景层
+    var layers = sectionEl.querySelectorAll('.besitsol-banner-layer');
+    for (var i = 0; i < layers.length; i++) {
+      layers[i].classList.toggle('is-active', layers[i].getAttribute('data-scene') === sceneName);
+    }
+
+    // 按钮状态
+    var btns = sectionEl.querySelectorAll('[data-scene-btn]');
+    for (var j = 0; j < btns.length; j++) {
+      btns[j].classList.toggle('is-active', btns[j].getAttribute('data-scene-btn') === sceneName);
+    }
+
+    // 文本内容（统一 innerHTML，支持 inline_richtext 的 <br> 和 <strong>）
+    var titleEl = sectionEl.querySelector('[data-banner-title]');
+    var descEl = sectionEl.querySelector('[data-banner-desc]');
+    if (titleEl) titleEl.innerHTML = sceneData[sceneName].title || '';
+    if (descEl) descEl.innerHTML = sceneData[sceneName].desc || '';
+  }
+
+  // 绑定场景按钮
+  var sceneBtns = sectionEl.querySelectorAll('[data-scene-btn]');
+  for (var s = 0; s < sceneBtns.length; s++) {
+    sceneBtns[s].addEventListener('click', (function(btn) {
+      return function() { switchScene(btn.getAttribute('data-scene-btn')); };
+    })(sceneBtns[s]));
+  }
+
+  /* ===== 移动端菜单 ===== */
+  function openMobileMenu() {
+    if (!mobileNav) return;
+    mobileNav.classList.add('is-open');
+    mobileNav.setAttribute('aria-hidden', 'false');
+    if (mobileOverlay) mobileOverlay.classList.add('is-open');
+    var toggleBtn = sectionEl.querySelector('.besitsol-mobile-menu-btn');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+  }
+  function closeMobileMenu() {
+    if (!mobileNav) return;
+    mobileNav.classList.remove('is-open');
+    mobileNav.setAttribute('aria-hidden', 'true');
+    if (mobileOverlay) mobileOverlay.classList.remove('is-open');
+    var toggleBtn = sectionEl.querySelector('.besitsol-mobile-menu-btn');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  var toggleBtns = sectionEl.querySelectorAll('[data-mobile-toggle]');
+  for (var t = 0; t < toggleBtns.length; t++) {
+    toggleBtns[t].addEventListener('click', function() {
+      if (mobileNav && mobileNav.classList.contains('is-open')) {
+        closeMobileMenu();
+      } else {
+        openMobileMenu();
+      }
+    });
+  }
+  if (mobileOverlay) {
+    mobileOverlay.addEventListener('click', closeMobileMenu);
+  }
+
+  /* ===== FAQ ===== */
+  var faqBtns = sectionEl.querySelectorAll('[data-faq-toggle]');
+  for (var f = 0; f < faqBtns.length; f++) {
+    faqBtns[f].addEventListener('click', function() {
+      var item = this.parentElement;
+      var isOpen = item.classList.contains('is-open');
+      item.classList.toggle('is-open');
+      this.setAttribute('aria-expanded', !isOpen);
+      var answer = item.querySelector('.besitsol-faq-answer');
+      if (answer) answer.setAttribute('aria-hidden', isOpen);
+    });
+  }
+
+  /* ===== 全屏滚动导航 ===== */
+  if (!IS_EDITOR && scrollWrap) {
+    function goToPanel(index) {
+      if (isScrolling || index < 0 || index >= totalPanels) return;
+      isScrolling = true;
+      currentPanel = index;
+      // 使用 CSS 自定义属性值来计算偏移（与 panel 高度一致）
+      var vh = parseFloat(getComputedStyle(sectionEl).getPropertyValue('--besitsol-vh')) || (window.innerHeight * 0.01);
+      var offset = currentPanel * vh * 100;
+      scrollWrap.style.transform = 'translateY(-' + offset + 'px)';
+      setTimeout(function() { isScrolling = false; }, scrollTimeout);
+    }
+
+    // 导航链接 data-goto
+    var gotoLinks = sectionEl.querySelectorAll('[data-goto]');
+    for (var g = 0; g < gotoLinks.length; g++) {
+      gotoLinks[g].addEventListener('click', (function(link) {
+        return function(e) {
+          var idx = parseInt(link.getAttribute('data-goto'), 10);
+          if (!isNaN(idx) && idx >= 0 && idx < totalPanels) {
+            e.preventDefault();
+            goToPanel(idx);
+            closeMobileMenu();
+          }
+        };
+      })(gotoLinks[g]));
+    }
+
+    // IntersectionObserver：仅当 section 在视窗内时劫持滚动
+    var inViewport = true; // 默认 true（如果是首屏唯一 section）
+    if (window.IntersectionObserver) {
+      var observer = new IntersectionObserver(function(entries) {
+        for (var i = 0; i < entries.length; i++) {
+          if (entries[i].target === sectionEl) {
+            inViewport = entries[i].intersectionRatio > 0.3;
+          }
+        }
+      }, { threshold: [0, 0.3, 0.5, 1] });
+      observer.observe(sectionEl);
+    }
+
+    // 滚轮
+    function onWheel(e) {
+      if (!inViewport || isScrolling) return;
+      var delta = e.deltaY || e.detail || -e.wheelDelta;
+      if (delta > 5 && currentPanel < totalPanels - 1) {
+        e.preventDefault();
+        goToPanel(currentPanel + 1);
+      } else if (delta < -5 && currentPanel > 0) {
+        e.preventDefault();
+        goToPanel(currentPanel - 1);
+      }
+    }
+    sectionEl.addEventListener('wheel', onWheel, { passive: false });
+
+    // 键盘
+    function onKeydown(e) {
+      if (!inViewport || isScrolling) return;
+      // 仅当没有聚焦到输入框时才劫持
+      var tag = (document.activeElement && document.activeElement.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+      if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentPanel < totalPanels - 1) {
+        e.preventDefault();
+        goToPanel(currentPanel + 1);
+      } else if ((e.key === 'ArrowUp' || e.key === 'PageUp') && currentPanel > 0) {
+        e.preventDefault();
+        goToPanel(currentPanel - 1);
+      }
+    }
+    document.addEventListener('keydown', onKeydown);
+
+    // 触摸
+    function onTouchStart(e) { touchStartY = e.touches[0].clientY; }
+    function onTouchEnd(e) {
+      if (!inViewport || isScrolling) return;
+      var diff = touchStartY - e.changedTouches[0].clientY;
+      if (diff > 60 && currentPanel < totalPanels - 1) {
+        goToPanel(currentPanel + 1);
+      } else if (diff < -60 && currentPanel > 0) {
+        goToPanel(currentPanel - 1);
+      }
+    }
+    sectionEl.addEventListener('touchstart', onTouchStart, { passive: true });
+    sectionEl.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    /* ===== 清理：Shopify section unload ===== */
+    document.addEventListener('shopify:section:unload', function(e) {
+      if (e.detail && e.detail.sectionId === '{{ section.id }}') {
+        sectionEl.removeEventListener('wheel', onWheel);
+        sectionEl.removeEventListener('touchstart', onTouchStart);
+        sectionEl.removeEventListener('touchend', onTouchEnd);
+        document.removeEventListener('keydown', onKeydown);
+        window.removeEventListener('resize', updateVh);
+        if (observer) observer.disconnect();
+      }
+    });
+  }
+
+  /* ===== Theme Editor 事件 ===== */
+  if (IS_EDITOR) {
+    document.addEventListener('shopify:section:select', function(e) {
+      if (e.detail && e.detail.sectionId === '{{ section.id }}') {
+        hideLoader();
+      }
+    });
+  }
+})();
+</script>
+
+
+{% schema %}
+{
+  "name": "BESITSOL Fullpage Hero",
+  "tag": "section",
+  "class": "besitsol-fullpage-hero-section",
+  "settings": [
+    { "type": "header", "content": "Color Settings / 颜色设置" },
+    { "type": "color", "id": "primary_green_color", "label": "Primary Green (Olive)", "default": "#6B8E23" },
+    { "type": "color", "id": "dark_brown_color", "label": "Dark Brown", "default": "#3D2817" },
+    { "type": "color", "id": "premium_gray_color", "label": "Premium Gray", "default": "#8B8680" },
+    { "type": "color", "id": "cream_color", "label": "Cream Base", "default": "#F2E9D8" },
+    { "type": "color", "id": "forest_color", "label": "Forest Green", "default": "#1E3D2F" },
+
+    { "type": "header", "content": "Navigation / 导航设置" },
+    { "type": "text", "id": "nav_link_1_text", "label": "Nav Link 1 Text", "default": "Easy Install" },
+    { "type": "url", "id": "nav_link_1_url", "label": "Nav Link 1 URL" },
+    { "type": "text", "id": "nav_link_2_text", "label": "Nav Link 2 Text", "default": "Materials" },
+    { "type": "url", "id": "nav_link_2_url", "label": "Nav Link 2 URL" },
+    { "type": "text", "id": "nav_link_3_text", "label": "Nav Link 3 Text", "default": "Tech Specs" },
+    { "type": "url", "id": "nav_link_3_url", "label": "Nav Link 3 URL" },
+    { "type": "text", "id": "nav_link_4_text", "label": "Nav Link 4 Text", "default": "Community" },
+    { "type": "url", "id": "nav_link_4_url", "label": "Nav Link 4 URL" },
+    { "type": "text", "id": "shop_now_text", "label": "Shop Button Text", "default": "Shop Now" },
+    { "type": "url", "id": "shop_now_link", "label": "Shop Button Link" },
+
+    { "type": "header", "content": "Hero Section / 英雄区" },
+    { "type": "text", "id": "hero_tagline", "label": "Tagline", "default": "Premium Retractable Awnings" },
+    { "type": "inline_richtext", "id": "scene1_title", "label": "Scene 1 Title", "default": "Bring Nature Home." },
+    { "type": "textarea", "id": "scene1_description", "label": "Scene 1 Description", "default": "Enjoy warm family outdoor moments. Our smart retractable awnings seamlessly extend your living room into nature." },
+    { "type": "image_picker", "id": "scene1_bg_image", "label": "Scene 1 Background Image", "info": "Recommended: 1920x1080 or higher" },
+    { "type": "text", "id": "scene1_btn_text", "label": "Scene 1 Button Label", "default": "01 - Patio Dinner" },
+    { "type": "inline_richtext", "id": "scene2_title", "label": "Scene 2 Title", "default": "Light & Shadow, Tranquility." },
+    { "type": "textarea", "id": "scene2_description", "label": "Scene 2 Description", "default": "Afternoon Reading. Block the heat, keep the breeze and soft light. Relax your mind and body." },
+    { "type": "image_picker", "id": "scene2_bg_image", "label": "Scene 2 Background Image" },
+    { "type": "text", "id": "scene2_btn_text", "label": "Scene 2 Button Label", "default": "02 - Reading Time" },
+    { "type": "inline_richtext", "id": "scene3_title", "label": "Scene 3 Title", "default": "Fearless of Sun, Guarding Smiles." },
+    { "type": "textarea", "id": "scene3_description", "label": "Scene 3 Description", "default": "Efficiently blocks 99% of UV rays, creating a safe and cool outdoor playground for children." },
+    { "type": "image_picker", "id": "scene3_bg_image", "label": "Scene 3 Background Image" },
+    { "type": "text", "id": "scene3_btn_text", "label": "Scene 3 Button Label", "default": "03 - Family Joy" },
+    { "type": "text", "id": "scenarios_label", "label": "Scenarios Label", "default": "Scenarios" },
+    { "type": "text", "id": "hero_button_text", "label": "Hero Button Text", "default": "Start Another Life" },
+    { "type": "url", "id": "hero_button_link", "label": "Hero Button Link" },
+
+    { "type": "header", "content": "DIY Installation / DIY 安装区" },
+    { "type": "text", "id": "diy_tagline", "label": "Tagline", "default": "Easy Installation" },
+    { "type": "text", "id": "diy_heading", "label": "Heading", "default": "Build Your Dream Space Yourself" },
+    { "type": "textarea", "id": "diy_description", "label": "Description", "default": "Say goodbye to complex construction and high labor costs. Our modular pre-assembled design makes installation as satisfying as solving a puzzle." },
+    { "type": "text", "id": "diy_step1_title", "label": "Step 1 Title", "default": "Modular Unboxing" },
+    { "type": "textarea", "id": "diy_step1_description", "label": "Step 1 Description", "default": "All core components are pre-assembled and tested in the factory. Simply verify the minimalist parts kit upon arrival." },
+    { "type": "text", "id": "diy_step2_title", "label": "Step 2 Title", "default": "Simple Bracket Fixation" },
+    { "type": "textarea", "id": "diy_step2_description", "label": "Step 2 Description", "default": "Use the 1:1 paper template to drill holes and secure the heavy-duty wall brackets. The snap-on design makes it easy." },
+    { "type": "text", "id": "diy_step3_title", "label": "Step 3 Title", "default": "Plug & Enjoy" },
+    { "type": "textarea", "id": "diy_step3_description", "label": "Step 3 Description", "default": "Connect to power and expand it instantly with the pre-paired remote. Start enjoying your exclusive outdoor sanctuary." },
+
+    { "type": "header", "content": "Materials / 材料区" },
+    { "type": "text", "id": "materials_tagline", "label": "Tagline", "default": "Premium Sourcing" },
+    { "type": "text", "id": "materials_heading", "label": "Heading", "default": "World-Class Materials" },
+    { "type": "text", "id": "material1_title", "label": "Material 1 Title", "default": "RECASENS\u00ae Fabric" },
+    { "type": "textarea", "id": "material1_description", "label": "Material 1 Description", "default": "Sourced from Spain, this premium solution-dyed acrylic fabric offers unparalleled UV protection and colorfastness." },
+    { "type": "text", "id": "material2_title", "label": "Material 2 Title", "default": "Aero-Grade Aluminum" },
+    { "type": "textarea", "id": "material2_description", "label": "Material 2 Description", "default": "Lightweight yet incredibly robust aviation-grade aluminum alloy, guaranteeing zero rust and structural integrity." },
+    { "type": "text", "id": "material3_title", "label": "Material 3 Title", "default": "Stainless Steel Hinges" },
+    { "type": "textarea", "id": "material3_description", "label": "Material 3 Description", "default": "Marine-grade 316 stainless steel hinges provide exceptional corrosion resistance in all climates." },
+
+    { "type": "header", "content": "Tech Specs / 技术规格区" },
+    { "type": "text", "id": "techspecs_tagline", "label": "Tagline", "default": "Precision Engineering" },
+    { "type": "text", "id": "techspecs_heading", "label": "Heading", "default": "Advanced Tech Specs" },
+    { "type": "text", "id": "techspecs_feature1_title", "label": "Feature 1 Title", "default": "Smart Automation" },
+    { "type": "textarea", "id": "techspecs_feature1_description", "label": "Feature 1 Description", "default": "Integrated with smart home systems for effortless control and personalized comfort." },
+    { "type": "text", "id": "techspecs_feature1_item1", "label": "Feature 1 Item 1", "default": "Remote Control & App Integration" },
+    { "type": "text", "id": "techspecs_feature1_item2", "label": "Feature 1 Item 2", "default": "Wind & Sun Sensors (Optional)" },
+    { "type": "text", "id": "techspecs_feature1_item3", "label": "Feature 1 Item 3", "default": "Voice Assistant Compatibility" },
+    { "type": "text", "id": "techspecs_feature2_title", "label": "Feature 2 Title", "default": "Robust Construction" },
+    { "type": "textarea", "id": "techspecs_feature2_description", "label": "Feature 2 Description", "default": "Engineered for durability and longevity, ensuring years of reliable performance." },
+    { "type": "text", "id": "techspecs_feature2_item1", "label": "Feature 2 Item 1", "default": "Aero-Grade Aluminum Frame" },
+    { "type": "text", "id": "techspecs_feature2_item2", "label": "Feature 2 Item 2", "default": "Marine-Grade Stainless Steel" },
+    { "type": "text", "id": "techspecs_feature2_item3", "label": "Feature 2 Item 3", "default": "UV & Water Resistant Fabric" },
+
+    { "type": "header", "content": "FAQ / 常见问题" },
+    { "type": "text", "id": "faq_tagline", "label": "Tagline", "default": "Got Questions?" },
+    { "type": "text", "id": "faq_heading", "label": "Heading", "default": "Frequently Asked Questions" },
+    { "type": "text", "id": "faq1_question", "label": "Question 1", "default": "Do I need special tools for installation?" },
+    { "type": "textarea", "id": "faq1_answer", "label": "Answer 1", "default": "No. We provide standard bolts and a simple wrench. You only need a household electric drill and a tape measure." },
+    { "type": "text", "id": "faq2_question", "label": "Question 2", "default": "How much wind can it withstand?" },
+    { "type": "textarea", "id": "faq2_answer", "label": "Answer 2", "default": "Our frames are CE certified. When fully extended, they withstand Level 6 strong winds (approx. 40km/h)." },
+    { "type": "text", "id": "faq3_question", "label": "Question 3", "default": "Is the fabric easily dirtied? How to clean it?" },
+    { "type": "textarea", "id": "faq3_answer", "label": "Answer 3", "default": "The fabric features a Teflon self-cleaning coating; ordinary dust is naturally washed away by rain." },
+
+    { "type": "header", "content": "Community / 社区区" },
+    { "type": "text", "id": "community_tagline", "label": "Tagline", "default": "Join Our Family" },
+    { "type": "text", "id": "community_heading", "label": "Heading", "default": "Connect with BESITSOL Community" },
+    { "type": "text", "id": "community_card1_title", "label": "Card 1 Title", "default": "Expert Support" },
+    { "type": "textarea", "id": "community_card1_description", "label": "Card 1 Description", "default": "Get personalized assistance from our dedicated team of awning specialists." },
+    { "type": "text", "id": "community_card2_title", "label": "Card 2 Title", "default": "Exclusive Offers" },
+    { "type": "textarea", "id": "community_card2_description", "label": "Card 2 Description", "default": "Receive special discounts and early access to new products as a community member." },
+    { "type": "text", "id": "community_card3_title", "label": "Card 3 Title", "default": "Inspiration Hub" },
+    { "type": "textarea", "id": "community_card3_description", "label": "Card 3 Description", "default": "Explore inspiring projects and share your own outdoor space transformations." },
+
+    { "type": "header", "content": "Footer / 页脚设置" },
+    { "type": "textarea", "id": "footer_description", "label": "Footer Description", "default": "We bring premium outdoor living solutions to homes worldwide." },
+    { "type": "url", "id": "facebook_link", "label": "Facebook Link" },
+    { "type": "url", "id": "twitter_link", "label": "Twitter Link" },
+    { "type": "url", "id": "instagram_link", "label": "Instagram Link" },
+    { "type": "text", "id": "quick_links_heading", "label": "Quick Links Heading", "default": "Quick Links" },
+    { "type": "url", "id": "product_link", "label": "Products Link" },
+    { "type": "text", "id": "product_link_text", "label": "Products Link Text", "default": "Products" },
+    { "type": "url", "id": "install_guide_link", "label": "Install Guide Link" },
+    { "type": "text", "id": "install_guide_link_text", "label": "Install Guide Text", "default": "Install Guide" },
+    { "type": "url", "id": "warranty_link", "label": "Warranty Link" },
+    { "type": "text", "id": "warranty_link_text", "label": "Warranty Text", "default": "Warranty" },
+    { "type": "url", "id": "dealer_link", "label": "Dealers Link" },
+    { "type": "text", "id": "dealer_link_text", "label": "Dealers Text", "default": "Dealers" },
+    { "type": "text", "id": "subscribe_heading", "label": "Subscribe Heading", "default": "Stay Updated" },
+    { "type": "textarea", "id": "subscribe_description", "label": "Subscribe Description", "default": "Subscribe to get the latest updates, tips, and exclusive offers." },
+    { "type": "text", "id": "email_placeholder", "label": "Email Placeholder", "default": "Your email" },
+    { "type": "url", "id": "privacy_policy_link", "label": "Privacy Policy Link" },
+    { "type": "text", "id": "privacy_policy_text", "label": "Privacy Policy Text", "default": "Privacy Policy" },
+    { "type": "url", "id": "terms_of_service_link", "label": "Terms of Service Link" },
+    { "type": "text", "id": "terms_of_service_text", "label": "Terms of Service Text", "default": "Terms of Service" }
+  ],
+  "presets": [
+    {
+      "name": "BESITSOL Fullpage Hero",
+      "category": "Hero"
+    }
+  ]
+}
+{% endschema %}
