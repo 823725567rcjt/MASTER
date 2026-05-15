@@ -4,19 +4,40 @@
  * 1. Full-page vertical scroll (wheel + touch + keyboard)
  * 2. Hero banner scene switching (hover/click)
  * 3. FAQ accordion
+ *
+ * Compatible with Shopify Theme Editor (preview mode) and live storefront.
  */
 
 (function () {
   'use strict';
 
-  // Wait for DOM
+  // Retry-based initialization to handle Shopify async section loading
+  var maxRetries = 20;
+  var retryCount = 0;
+
+  function tryInit() {
+    var heroFound = document.querySelector('.besitsol-hero');
+    var containerFound = document.getElementById('besitsol-scroll-container');
+
+    if (heroFound || containerFound || retryCount >= maxRetries) {
+      init();
+    } else {
+      retryCount++;
+      setTimeout(tryInit, 200);
+    }
+  }
+
+  // Start initialization
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(tryInit, 100);
+    });
   } else {
-    init();
+    setTimeout(tryInit, 100);
   }
 
   function init() {
+    console.log('[BESITSOL] Initializing...');
     initFullpageScroll();
     initHeroBanner();
     initFaqAccordion();
@@ -26,23 +47,27 @@
      1. FULLPAGE SCROLL
      ============================================= */
   function initFullpageScroll() {
-    const container = document.getElementById('besitsol-scroll-container');
-    if (!container) return;
+    var container = document.getElementById('besitsol-scroll-container');
+    if (!container) {
+      console.log('[BESITSOL] No scroll container found');
+      return;
+    }
 
-    // Find sections: Shopify wraps each section in .shopify-section
-    let sections = container.querySelectorAll(':scope > .shopify-section');
+    // Shopify wraps each section in .shopify-section divs
+    var sections = container.querySelectorAll(':scope > .shopify-section');
     if (!sections.length) {
-      // Fallback: direct .besitsol-section children
+      // Fallback: maybe sections are direct children
       sections = container.querySelectorAll('.besitsol-section');
     }
-    const totalSections = sections.length;
+    var totalSections = sections.length;
+    console.log('[BESITSOL] Scroll init — sections found:', totalSections);
     if (totalSections === 0) return;
 
-    let currentIndex = 0;
-    let isScrolling = false;
-    const scrollDuration = 1200; // matches CSS transition
+    var currentIndex = 0;
+    var isScrolling = false;
+    var scrollDuration = 1200;
 
-    // Apply body class to lock scroll
+    // Lock body scroll
     document.body.classList.add('besitsol-fullpage-body');
 
     function goToSection(index) {
@@ -66,17 +91,15 @@
     }, { passive: true });
 
     // Touch events
-    let touchStartY = 0;
-    let touchEndY = 0;
-
+    var touchStartY = 0;
     window.addEventListener('touchstart', function (e) {
       touchStartY = e.changedTouches[0].screenY;
     }, { passive: true });
 
     window.addEventListener('touchend', function (e) {
-      touchEndY = e.changedTouches[0].screenY;
+      var touchEndY = e.changedTouches[0].screenY;
       var diff = touchStartY - touchEndY;
-      if (Math.abs(diff) < 50) return; // minimum swipe distance
+      if (Math.abs(diff) < 50) return;
       if (diff > 0) {
         goToSection(currentIndex + 1);
       } else {
@@ -84,7 +107,7 @@
       }
     }, { passive: true });
 
-    // Keyboard arrows
+    // Keyboard
     window.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault();
@@ -101,7 +124,6 @@
       }
     });
 
-    // Expose global navigation for nav links
     window.besitsolGoToSection = goToSection;
   }
 
@@ -109,27 +131,23 @@
      2. HERO BANNER — Scene Switching
      ============================================= */
   function initHeroBanner() {
-    // Find hero section by class (more robust than ID, works with Shopify wrappers)
-    var heroSection = document.querySelector('.besitsol-hero');
-    if (!heroSection) {
-      // Fallback: try by ID
-      heroSection = document.getElementById('s-hero');
-    }
-    if (!heroSection) return;
-
-    var buttons = heroSection.querySelectorAll('.besitsol-theme-btn');
-    var layers = heroSection.querySelectorAll('.besitsol-hero__layer');
+    // Search the entire document for hero elements (works regardless of nesting)
+    var allButtons = document.querySelectorAll('.besitsol-theme-btn');
+    var allLayers = document.querySelectorAll('.besitsol-hero__layer');
     var titleEl = document.getElementById('besitsol-banner-title');
     var descEl = document.getElementById('besitsol-banner-desc');
 
-    // Debug: log what we found
-    console.log('[BESITSOL] Hero init — buttons:', buttons.length, 'layers:', layers.length);
+    console.log('[BESITSOL] Hero init — buttons:', allButtons.length, 'layers:', allLayers.length, 'title:', !!titleEl, 'desc:', !!descEl);
 
-    if (!buttons.length || !layers.length) return;
+    if (!allButtons.length || !allLayers.length) {
+      console.log('[BESITSOL] Hero elements not found, skipping banner init');
+      return;
+    }
 
-    // Build a lookup: index-based switching as fallback
-    var buttonArray = Array.prototype.slice.call(buttons);
-    var layerArray = Array.prototype.slice.call(layers);
+    var buttonArray = [];
+    var layerArray = [];
+    for (var i = 0; i < allButtons.length; i++) { buttonArray.push(allButtons[i]); }
+    for (var j = 0; j < allLayers.length; j++) { layerArray.push(allLayers[j]); }
 
     function switchScene(btn) {
       var targetId = btn.getAttribute('data-target');
@@ -137,28 +155,36 @@
       var newDesc = btn.getAttribute('data-desc');
       var btnIndex = buttonArray.indexOf(btn);
 
-      // Switch background layers — try by data-scene match first, then by index
-      var matched = false;
-      layerArray.forEach(function (layer) {
-        layer.classList.remove('active');
-        if (layer.getAttribute('data-scene') === targetId) {
-          layer.classList.add('active');
-          matched = true;
-        }
-      });
+      console.log('[BESITSOL] Switching to scene:', btnIndex, 'target:', targetId);
 
-      // Fallback: if no data-scene matched, use index
-      if (!matched && btnIndex >= 0 && btnIndex < layerArray.length) {
-        layerArray[btnIndex].classList.add('active');
+      // Remove active from all layers
+      for (var k = 0; k < layerArray.length; k++) {
+        layerArray[k].classList.remove('active');
       }
 
-      // Switch active button
-      buttonArray.forEach(function (b) {
-        b.classList.remove('active-btn');
-      });
+      // Try to match by data-scene attribute
+      var matched = false;
+      for (var m = 0; m < layerArray.length; m++) {
+        if (layerArray[m].getAttribute('data-scene') === targetId) {
+          layerArray[m].classList.add('active');
+          matched = true;
+          break;
+        }
+      }
+
+      // Fallback: match by index position
+      if (!matched && btnIndex >= 0 && btnIndex < layerArray.length) {
+        layerArray[btnIndex].classList.add('active');
+        console.log('[BESITSOL] Used index fallback for layer', btnIndex);
+      }
+
+      // Update active button state
+      for (var n = 0; n < buttonArray.length; n++) {
+        buttonArray[n].classList.remove('active-btn');
+      }
       btn.classList.add('active-btn');
 
-      // Animate text change
+      // Animate text
       if (titleEl && descEl && newTitle && newDesc) {
         titleEl.style.opacity = '0';
         descEl.style.opacity = '0';
@@ -171,56 +197,57 @@
       }
     }
 
-    buttonArray.forEach(function (btn) {
-      // Click to switch
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        switchScene(btn);
-      });
-
-      // Hover to switch (desktop only)
-      btn.addEventListener('mouseenter', function () {
-        if (window.innerWidth >= 1024) {
+    // Attach event listeners to each button
+    for (var p = 0; p < buttonArray.length; p++) {
+      (function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
           switchScene(btn);
-        }
-      });
-    });
+        });
+
+        btn.addEventListener('mouseenter', function () {
+          if (window.innerWidth >= 1024) {
+            switchScene(btn);
+          }
+        });
+      })(buttonArray[p]);
+    }
+
+    console.log('[BESITSOL] Hero banner initialized successfully');
   }
 
   /* =============================================
      3. FAQ ACCORDION
      ============================================= */
   function initFaqAccordion() {
-    // The FAQ toggle is also handled by inline onclick in the liquid,
-    // but we add a global handler as backup for robustness.
     var faqItems = document.querySelectorAll('.besitsol-faq__item');
     if (!faqItems.length) return;
 
-    faqItems.forEach(function (item) {
-      var questionBtn = item.querySelector('.besitsol-faq__question');
-      if (!questionBtn) return;
+    for (var i = 0; i < faqItems.length; i++) {
+      (function (item) {
+        var questionBtn = item.querySelector('.besitsol-faq__question');
+        if (!questionBtn) return;
 
-      questionBtn.addEventListener('click', function () {
-        // Close others
-        faqItems.forEach(function (other) {
-          if (other !== item) {
-            other.classList.remove('active');
+        questionBtn.addEventListener('click', function () {
+          for (var j = 0; j < faqItems.length; j++) {
+            if (faqItems[j] !== item) {
+              faqItems[j].classList.remove('active');
+            }
           }
+          item.classList.toggle('active');
         });
-        // Toggle current
-        item.classList.toggle('active');
-      });
-    });
+      })(faqItems[i]);
+    }
   }
 
   // Global FAQ toggle for inline onclick fallback
   window.besitsolToggleFaq = function (btn) {
     var item = btn.parentElement;
     var allItems = document.querySelectorAll('.besitsol-faq__item');
-    allItems.forEach(function (el) {
-      if (el !== item) el.classList.remove('active');
-    });
+    for (var i = 0; i < allItems.length; i++) {
+      if (allItems[i] !== item) allItems[i].classList.remove('active');
+    }
     item.classList.toggle('active');
   };
 
