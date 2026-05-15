@@ -29,8 +29,15 @@
     const container = document.getElementById('besitsol-scroll-container');
     if (!container) return;
 
-    const sections = container.querySelectorAll('.besitsol-section');
+    // Find sections: Shopify wraps each section in .shopify-section
+    let sections = container.querySelectorAll(':scope > .shopify-section');
+    if (!sections.length) {
+      // Fallback: direct .besitsol-section children
+      sections = container.querySelectorAll('.besitsol-section');
+    }
     const totalSections = sections.length;
+    if (totalSections === 0) return;
+
     let currentIndex = 0;
     let isScrolling = false;
     const scrollDuration = 1200; // matches CSS transition
@@ -102,7 +109,12 @@
      2. HERO BANNER — Scene Switching
      ============================================= */
   function initHeroBanner() {
-    var heroSection = document.getElementById('s-hero');
+    // Find hero section by class (more robust than ID, works with Shopify wrappers)
+    var heroSection = document.querySelector('.besitsol-hero');
+    if (!heroSection) {
+      // Fallback: try by ID
+      heroSection = document.getElementById('s-hero');
+    }
     if (!heroSection) return;
 
     var buttons = heroSection.querySelectorAll('.besitsol-theme-btn');
@@ -110,29 +122,44 @@
     var titleEl = document.getElementById('besitsol-banner-title');
     var descEl = document.getElementById('besitsol-banner-desc');
 
+    // Debug: log what we found
+    console.log('[BESITSOL] Hero init — buttons:', buttons.length, 'layers:', layers.length);
+
     if (!buttons.length || !layers.length) return;
+
+    // Build a lookup: index-based switching as fallback
+    var buttonArray = Array.prototype.slice.call(buttons);
+    var layerArray = Array.prototype.slice.call(layers);
 
     function switchScene(btn) {
       var targetId = btn.getAttribute('data-target');
       var newTitle = btn.getAttribute('data-title');
       var newDesc = btn.getAttribute('data-desc');
+      var btnIndex = buttonArray.indexOf(btn);
 
-      // Switch background layers
-      layers.forEach(function (layer) {
+      // Switch background layers — try by data-scene match first, then by index
+      var matched = false;
+      layerArray.forEach(function (layer) {
         layer.classList.remove('active');
         if (layer.getAttribute('data-scene') === targetId) {
           layer.classList.add('active');
+          matched = true;
         }
       });
 
+      // Fallback: if no data-scene matched, use index
+      if (!matched && btnIndex >= 0 && btnIndex < layerArray.length) {
+        layerArray[btnIndex].classList.add('active');
+      }
+
       // Switch active button
-      buttons.forEach(function (b) {
+      buttonArray.forEach(function (b) {
         b.classList.remove('active-btn');
       });
       btn.classList.add('active-btn');
 
       // Animate text change
-      if (titleEl && descEl) {
+      if (titleEl && descEl && newTitle && newDesc) {
         titleEl.style.opacity = '0';
         descEl.style.opacity = '0';
         setTimeout(function () {
@@ -144,9 +171,11 @@
       }
     }
 
-    buttons.forEach(function (btn) {
+    buttonArray.forEach(function (btn) {
       // Click to switch
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         switchScene(btn);
       });
 
